@@ -10,10 +10,25 @@ const franklin = Libre_Franklin({
   display: "swap",
 });
 
+const description =
+  "A dating app that runs like a hiring process: structured screens, formal offers, and rejection letters with dignity. Strictly 18+.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://letstouchbase.pages.dev"),
   title: `${glossary.brand.name} — ${glossary.brand.tagline}`,
-  description:
-    "A dating app that runs like a hiring process: structured screens, formal offers, and rejection letters with dignity. Strictly 18+.",
+  description,
+  openGraph: {
+    title: `${glossary.brand.name} — ${glossary.brand.tagline}`,
+    description,
+    url: "/",
+    siteName: glossary.brand.name,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: `${glossary.brand.name} — ${glossary.brand.tagline}`,
+    description,
+  },
 };
 
 export default function RootLayout({
