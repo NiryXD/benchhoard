@@ -94,7 +94,10 @@ reference approval/delete       │     submit-reference   external, token-gated
 - **Input:** `{ token, authorName, relationship?, body (≤600) }`.
 - **Does:** validate `reference_invites` token not expired, insert
   `reference_letters (is_approved=false)`, consume the token. Owner approves
-  in-app before display (client-direct update under RLS).
+  in-app before display (client-direct update under RLS). Also exposes a
+  read-only `GET ?token=` pre-validation so the form can reject dead links
+  before the author writes anything; token consumption is an atomic
+  delete-returning.
 - **Note:** this is `apps/web`'s first real feature — the web app must exist
   by Phase 4.
 
