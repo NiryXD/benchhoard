@@ -28,7 +28,8 @@ score = 0.35·activity + 0.25·band + 0.20·completeness + 0.10·fresh + 0.10·j
   users aren't punished by tiny samples. Band score =
   `1 − |d_viewer − d_candidate|` — people see others in a similar reciprocity
   band, which is most of what dating-app "ELO" actually is. One column,
-  recomputed nightly (pg_cron + Edge Function).
+  recomputed nightly by `ltb_nightly()` — pure SQL scheduled with pg_cron
+  (no Edge Function or pg_net needed; see 08-backend-contracts.md).
 - **completeness:** all photo slots + 3 behavioral answers + education filled
   outranks skeletons; doubles as the onboarding incentive.
 - **fresh:** temporary new-hire visibility boost (first 7 days).
