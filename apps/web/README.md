@@ -26,15 +26,20 @@ Connect the GitHub repo in the Cloudflare dashboard:
 - **Build command:** `npm run build --workspace web`
 - **Build output directory:** `apps/web/out`
 - **Root directory:** repo root (npm workspaces need the root lockfile)
+- **Environment variable:** `NEXT_PUBLIC_WAITLIST_URL` →
+  `https://<project-ref>.supabase.co/functions/v1/join-waitlist`
+  (inlined at build time; without it the form fails gracefully)
 
 Site serves at `letstouchbase.pages.dev`; attach `letstouchbase.com` later
 when the domain is purchased.
 
 ## TODOs before launch
 
-- Waitlist endpoint: `src/components/WaitlistForm.tsx` posts to a placeholder.
-  Add a `join-waitlist` Edge Function contract to
-  `docs/plan/08-backend-contracts.md`, deploy it, point the constant at it.
+- Waitlist backend exists (`supabase/functions/join-waitlist`, contract in
+  doc 08 §8) but needs deploying:
+  `supabase db push` then
+  `supabase functions deploy join-waitlist --no-verify-jwt`,
+  and set `NEXT_PUBLIC_WAITLIST_URL` in the Pages build env.
 - Legal: `/privacy` and `/terms` are working drafts — run through Termly
   (free tier) / legal review and fill the `[BRACKETED]` placeholders
   (support email, jurisdiction).

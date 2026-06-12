@@ -1,21 +1,37 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
-// TODO(backend): docs/plan/08-backend-contracts.md defines the Edge Functions
-// and none of them is a waitlist intake yet. Add a `join-waitlist` contract
-// there, deploy it (Supabase Edge Function, free tier), and point this
-// constant at the deployed URL. Until then every submission takes the
-// graceful-failure path below — by design.
-const WAITLIST_ENDPOINT = "/api/join-waitlist"; // placeholder — not provisioned
+// Set in Cloudflare Pages build settings once the Edge Function is deployed:
+//   NEXT_PUBLIC_WAITLIST_URL=https://<project-ref>.supabase.co/functions/v1/join-waitlist
+// Contract: docs/plan/08-backend-contracts.md §8 (join-waitlist).
+// Without it, submissions take the graceful-failure path below — by design.
+const WAITLIST_ENDPOINT =
+  process.env.NEXT_PUBLIC_WAITLIST_URL ?? "/api/join-waitlist";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Status = "idle" | "submitting" | "ok" | "err";
 
+type WaitlistResult = {
+  referralCode: string;
+  position: number;
+  alreadyOnList: boolean;
+};
+
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [result, setResult] = useState<WaitlistResult | null>(null);
+  const [ref, setRef] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // ?ref=CODE arrives via shared referral links; static export, so read it
+  // client-side rather than through routing
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("ref");
+    if (code) setRef(code);
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -25,12 +41,62 @@ export function WaitlistForm() {
       const res = await fetch(WAITLIST_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(ref ? { email, ref } : { email }),
       });
-      setStatus(res.ok ? "ok" : "err");
+      if (!res.ok) {
+        setStatus("err");
+        return;
+      }
+      setResult((await res.json()) as WaitlistResult);
+      setStatus("ok");
     } catch {
       setStatus("err");
     }
+  }
+
+  async function copyReferralLink() {
+    if (!result) return;
+    const link = `${window.location.origin}/?ref=${result.referralCode}#waitlist`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // clipboard unavailable — the visible link is still selectable
+    }
+  }
+
+  if (status === "ok" && result) {
+    return (
+      <div className="form-card">
+        <div className="form-card-head">
+          <strong>Application Received</strong>
+          <span className="form-no">Form LTB‑001 · Filed</span>
+        </div>
+        <div className="form-card-body">
+          <p className="form-result-lede">
+            {result.alreadyOnList
+              ? "You're already in the system — HR appreciates the follow-up."
+              : "Welcome to the candidate pool."}{" "}
+            You are <strong>#{result.position}</strong> in the queue.
+          </p>
+          <p className="form-hint">
+            Employee Referral Bonus: every colleague who joins through your
+            link moves you up.
+          </p>
+          <div className="ref-row">
+            <code className="ref-chip">/?ref={result.referralCode}</code>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={copyReferralLink}
+            >
+              {copied ? "Copied ✓" : "Copy referral link"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -62,15 +128,10 @@ export function WaitlistForm() {
           </button>
         </div>
         <p className="form-hint">
-          Employee Referral Bonus in effect: refer a colleague and you both
-          move up the list. Hiring is who you know.
+          {ref
+            ? "You were referred by a colleague — you both move up the list."
+            : "Employee Referral Bonus in effect: refer a colleague and you both move up the list. Hiring is who you know."}
         </p>
-        {status === "ok" && (
-          <p className="form-status ok" role="status">
-            Application received. Expect a response within 3–5 business
-            heartbeats.
-          </p>
-        )}
         {status === "err" && (
           <p className="form-status err" role="status">
             We&rsquo;ll circle back. Your enthusiasm has been noted in your

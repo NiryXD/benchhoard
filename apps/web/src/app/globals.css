@@ -756,6 +756,34 @@ a:hover {
   border-left: 3px solid var(--blue);
 }
 
+.form-result-lede {
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.form-result-lede strong {
+  color: var(--green);
+}
+
+.ref-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.ref-chip {
+  background: var(--bg);
+  border: 1px dashed var(--ink-soft);
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  user-select: all;
+}
+
 /* ---- footer ---- */
 .footer {
   border-top: 1px solid var(--line);
