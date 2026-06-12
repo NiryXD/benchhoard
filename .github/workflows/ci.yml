@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck packages/shared
+        run: npx tsc --noEmit -p packages/shared
+
+      - name: Typecheck apps/mobile
+        run: npx tsc --noEmit -p apps/mobile
+
+      - name: Typecheck apps/web
+        run: npx tsc --noEmit -p apps/web
+
+      # Static export for Cloudflare Pages; no env vars needed — endpoints.ts
+      # falls back gracefully when NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL is unset.
+      - name: Build apps/web
+        run: npm run build --workspace web
