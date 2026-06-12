@@ -16,14 +16,26 @@ import {
 
 const currentYear = new Date().getFullYear();
 
-export const experienceSchema = z.object({
-  title: z.string().min(1).max(80),
-  company: z.string().max(80).optional(),
-  industry: z.enum(INDUSTRIES),
-  startYear: z.number().int().min(1950).max(currentYear),
-  endYear: z.number().int().min(1950).max(currentYear).nullable(), // null = Present
-  oneLiner: z.string().max(LIMITS.experienceOneLinerMaxChars).optional(),
-});
+/** Store-required 18+ age gate (07-roadmap.md Phase 0). UI gates earlier; this is the contract. */
+const isAtLeast18 = (isoDate: string) => {
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - 18);
+  return new Date(`${isoDate}T00:00:00Z`).getTime() <= cutoff.getTime();
+};
+
+export const experienceSchema = z
+  .object({
+    title: z.string().min(1).max(80),
+    company: z.string().max(80).optional(),
+    industry: z.enum(INDUSTRIES),
+    startYear: z.number().int().min(1950).max(currentYear),
+    endYear: z.number().int().min(1950).max(currentYear).nullable(), // null = Present
+    oneLiner: z.string().max(LIMITS.experienceOneLinerMaxChars).optional(),
+  })
+  .refine((e) => e.endYear === null || e.endYear >= e.startYear, {
+    message: "End year can't be before start year",
+    path: ["endYear"],
+  });
 export type Experience = z.infer<typeof experienceSchema>;
 
 export const educationSchema = z.object({
@@ -48,7 +60,7 @@ export const profileSchema = z.object({
   industry: z.enum(INDUSTRIES).optional(),
   openToWork: z.enum(OPEN_TO_WORK),
   archetype: z.enum(DEPARTMENT_ARCHETYPES).optional(),
-  birthdate: z.string().date(),
+  birthdate: z.string().date().refine(isAtLeast18, "You must be 18 or older"),
   gender: z.enum(GENDERS),
   familyPlans: z.enum(FAMILY_PLANS).optional(),
   hasKids: z.enum(HAS_KIDS).optional(),

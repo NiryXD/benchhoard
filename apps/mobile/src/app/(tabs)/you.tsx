@@ -1,12 +1,27 @@
 import { useAuth, useClerk } from '@clerk/clerk-expo';
 import { glossary } from '@ltb/shared';
 import { useQueryClient } from '@tanstack/react-query';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 
 import { LTB } from '@/constants/theme';
 import { ResumeCard } from '@/features/discovery/ResumeCard';
 import { useProfileCard } from '@/lib/discovery';
 import { useMyProfile } from '@/lib/profile';
+import {
+  useCreateReferenceInvite,
+  useDeleteReference,
+  useMyReferences,
+  useSetReferenceApproval,
+} from '@/lib/references';
 import { supabase } from '@/lib/supabase';
 
 const OTW_COLORS = {
@@ -20,12 +35,57 @@ export default function YourResumeScreen() {
   const { userId } = useAuth();
   const { data: profile } = useMyProfile();
   const { data: card } = useProfileCard(userId ?? undefined);
+  const { data: references } = useMyReferences();
+  const createInvite = useCreateReferenceInvite();
+  const setApproval = useSetReferenceApproval();
+  const deleteReference = useDeleteReference();
   const queryClient = useQueryClient();
 
   const toggleOutOfOffice = async (value: boolean) => {
     await supabase.from('profiles').update({ out_of_office: value }).eq('user_id', userId!);
     queryClient.invalidateQueries({ queryKey: ['my-profile'] });
     queryClient.invalidateQueries({ queryKey: ['profile-card', userId] });
+  };
+
+  const requestReference = async () => {
+    try {
+      const link = await createInvite.mutateAsync();
+      await Share.share({
+        message: `I'm listing you as a reference. Write me one (takes 2 minutes, expires in 14 days): ${link}`,
+      });
+    } catch {
+      Alert.alert('Could not create the invite link. Try again.');
+    }
+  };
+
+  const tenderResignation = () => {
+    Alert.alert(
+      'Tender Your Resignation',
+      'This permanently deletes your account: resume, photos, matches, alignment calls — everything. There is no rehire process.',
+      [
+        { text: 'Stay employed', style: 'cancel' },
+        {
+          text: 'Continue',
+          style: 'destructive',
+          onPress: () =>
+            Alert.alert('Final confirmation', 'Sign and submit your resignation?', [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Resign permanently',
+                style: 'destructive',
+                onPress: async () => {
+                  const { error } = await supabase.functions.invoke('delete-account');
+                  if (error) {
+                    Alert.alert('Deletion failed', 'Please try again.');
+                    return;
+                  }
+                  await signOut();
+                },
+              },
+            ]),
+        },
+      ],
+    );
   };
 
   return (

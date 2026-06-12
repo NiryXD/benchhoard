@@ -164,6 +164,23 @@ export function ResumeCard({
   while (photos.length) pushPhoto();
   while (answers.length) pushAnswer();
 
+  if (card.references.length) {
+    blocks.push(
+      <View key="references" style={styles.block}>
+        <Text style={styles.section}>References</Text>
+        {card.references.map((r) => (
+          <View key={r.id} style={styles.entry}>
+            <Text style={styles.refBody}>"{r.body}"</Text>
+            <Text style={styles.entryMeta}>
+              — {r.authorName}
+              {r.relationship ? `, ${r.relationship}` : ''}
+            </Text>
+          </View>
+        ))}
+      </View>,
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       {blocks}
@@ -197,6 +214,7 @@ const styles = StyleSheet.create({
   entryTitle: { color: LTB.ink, fontWeight: '600' },
   entryMeta: { color: LTB.inkSecondary, fontSize: 13, marginTop: 2 },
   entryLine: { color: LTB.ink, fontSize: 13, marginTop: 4 },
+  refBody: { color: LTB.ink, fontStyle: 'italic', lineHeight: 20 },
   annotateHint: {
     color: LTB.primary,
     fontSize: 11,

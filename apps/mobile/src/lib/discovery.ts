@@ -21,6 +21,12 @@ export type CardEducation = {
   field: string | null;
   classYear: number;
 };
+export type CardReference = {
+  id: number;
+  authorName: string;
+  relationship: string | null;
+  body: string;
+};
 
 export type ResumeCard = {
   userId: string;
@@ -38,6 +44,7 @@ export type ResumeCard = {
   answers: CardAnswer[];
   experience: CardExperience[];
   education: CardEducation[];
+  references: CardReference[];
 };
 
 export type Deck = { widened: boolean; pick: ResumeCard | null; candidates: ResumeCard[] };
