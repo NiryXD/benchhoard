@@ -812,6 +812,96 @@ a:hover {
   color: var(--navy);
 }
 
+/* ---- reference page ---- */
+.ref-page {
+  padding: 56px 0 96px;
+}
+
+.ref-page .wrap {
+  max-width: 720px;
+}
+
+.ref-back {
+  font-size: 0.85rem;
+  margin-bottom: 1.6rem;
+}
+
+.ref-state {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  max-width: 560px;
+}
+
+.ref-state h2 {
+  font-size: 1.3rem;
+}
+
+.ref-letter {
+  transform: none;
+  margin-top: 8px;
+}
+
+.ref-letter:hover {
+  transform: none;
+}
+
+.ref-label {
+  display: block;
+  font-family: var(--franklin, inherit);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 18px 0 6px;
+}
+
+.ref-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ref-letter input,
+.ref-letter select,
+.ref-letter textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  font-family: var(--serif);
+  color: var(--ink);
+  background: #fff;
+}
+
+.ref-letter textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.ref-letter input:focus,
+.ref-letter select:focus,
+.ref-letter textarea:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: -1px;
+  border-color: var(--blue);
+}
+
+.ref-counter {
+  text-align: right;
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+.ref-actions {
+  margin-top: 16px;
+}
+
 /* ---- legal pages ---- */
 .legal {
   max-width: 760px;

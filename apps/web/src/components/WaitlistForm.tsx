@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-
-// Set in Cloudflare Pages build settings once the Edge Function is deployed:
-//   NEXT_PUBLIC_WAITLIST_URL=https://<project-ref>.supabase.co/functions/v1/join-waitlist
-// Contract: docs/plan/08-backend-contracts.md §8 (join-waitlist).
-// Without it, submissions take the graceful-failure path below — by design.
-const WAITLIST_ENDPOINT =
-  process.env.NEXT_PUBLIC_WAITLIST_URL ?? "/api/join-waitlist";
+import { WAITLIST_ENDPOINT } from "@/lib/endpoints";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
