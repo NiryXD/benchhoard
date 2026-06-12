@@ -1,42 +1,91 @@
-import { useClerk, useUser } from '@clerk/clerk-expo';
+import { useAuth, useClerk } from '@clerk/clerk-expo';
 import { glossary } from '@ltb/shared';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { LTB } from '@/constants/theme';
+import { ResumeCard } from '@/features/discovery/ResumeCard';
+import { useProfileCard } from '@/lib/discovery';
+import { useMyProfile } from '@/lib/profile';
+import { supabase } from '@/lib/supabase';
+
+const OTW_COLORS = {
+  committed: LTB.openToWork.committed,
+  casual: LTB.openToWork.casual,
+  networking: LTB.openToWork.networking,
+} as const;
 
 export default function YourResumeScreen() {
   const { signOut } = useClerk();
-  const { user } = useUser();
+  const { userId } = useAuth();
+  const { data: profile } = useMyProfile();
+  const { data: card } = useProfileCard(userId ?? undefined);
+  const queryClient = useQueryClient();
+
+  const toggleOutOfOffice = async (value: boolean) => {
+    await supabase.from('profiles').update({ out_of_office: value }).eq('user_id', userId!);
+    queryClient.invalidateQueries({ queryKey: ['my-profile'] });
+    queryClient.invalidateQueries({ queryKey: ['profile-card', userId] });
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.name}>{glossary.brand.name}</Text>
-        <Text style={styles.tagline}>{glossary.brand.tagline}</Text>
-        {user?.primaryEmailAddress ? (
-          <Text style={styles.email}>{user.primaryEmailAddress.emailAddress}</Text>
-        ) : null}
-      </View>
-      <Text style={styles.hint}>
-        Onboarding ("{glossary.onboarding.title}") lands here next: photo slots, executive
-        summary, experience, education, behavioral questions.
-      </Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      {profile ? (
+        <View style={styles.settingsCard}>
+          <View style={styles.settingRow}>
+            <View style={styles.settingMeta}>
+              <Text style={styles.settingLabel}>{glossary.profile.outOfOffice}</Text>
+              <Text style={styles.settingHint}>
+                Auto-reply mode: you stay visible, expectations get managed.
+              </Text>
+            </View>
+            <Switch
+              value={profile.out_of_office}
+              onValueChange={toggleOutOfOffice}
+              trackColor={{ true: LTB.primary }}
+            />
+          </View>
+          <View style={styles.settingRow}>
+            <View style={styles.settingMeta}>
+              <Text style={styles.settingLabel}>{glossary.profile.openToWork}</Text>
+            </View>
+            <View
+              style={[styles.otwBadge, { backgroundColor: OTW_COLORS[profile.open_to_work] }]}>
+              <Text style={styles.otwText}>
+                {glossary.openToWorkStatuses[profile.open_to_work]}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      {card ? (
+        <>
+          <Text style={styles.previewLabel}>
+            Your resume, as candidates see it (tap targets disabled):
+          </Text>
+          <ResumeCard card={card} onAnnotate={() => {}} />
+        </>
+      ) : null}
+
       <Pressable style={styles.signOut} onPress={() => signOut()}>
         <Text style={styles.signOutText}>{glossary.auth.signOut}</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, gap: 16 },
-  card: { backgroundColor: LTB.paper, borderRadius: 8, padding: 20 },
-  name: { color: LTB.primary, fontWeight: '800', fontSize: 22 },
-  tagline: { color: LTB.inkSecondary, marginTop: 4, fontStyle: 'italic' },
-  hint: { color: LTB.inkSecondary, lineHeight: 20 },
-  email: { color: LTB.inkSecondary, marginTop: 8, fontSize: 13 },
+  container: { padding: 16, gap: 14 },
+  settingsCard: { backgroundColor: LTB.paper, borderRadius: 8, padding: 16, gap: 14 },
+  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  settingMeta: { flex: 1 },
+  settingLabel: { color: LTB.ink, fontWeight: '600' },
+  settingHint: { color: LTB.inkSecondary, fontSize: 12, marginTop: 2 },
+  otwBadge: { borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
+  otwText: { color: LTB.paper, fontSize: 12, fontWeight: '600' },
+  previewLabel: { color: LTB.inkSecondary, fontSize: 12 },
   signOut: {
-    marginTop: 'auto',
     borderWidth: 1,
     borderColor: LTB.divider,
     borderRadius: 6,
