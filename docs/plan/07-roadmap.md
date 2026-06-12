@@ -34,7 +34,9 @@ non-negotiable for approval).
 
 ## Phase 4 — The Bit
 
-Endorsements, references (shareable external link — growth loop), Department
+Endorsements, references (shareable external link — growth loop; **requires
+`apps/web` to exist** — the public reference form is its first real feature,
+alongside the store-required privacy/ToS pages), Department
 archetype badges, Out of Office, offer-letter share cards, Exit Interview,
 illustration pass (unDraw/Open Peeps in #0A66C2), app icon/brand.
 
@@ -75,7 +77,10 @@ inactivity — a non-issue once live, worth knowing during dev lulls.
 
 ## Verification checklist
 
-- Each phase ends runnable on a real phone (Expo Go / dev-client).
+- Each phase ends runnable on a real phone — Expo Go for Phases 1–2; an EAS
+  **development build** from Phase 3 on (push notifications don't work in
+  Expo Go on Android, and RevenueCat is a native module — see
+  09-setup-runbook.md).
 - Two test accounts end-to-end: screen → cover letter → offer extended → push
   received → realtime chat → rejection letter → termination.
 - RevenueCat sandbox purchases on the Play internal testing track.

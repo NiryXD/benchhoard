@@ -2,11 +2,16 @@ import { z } from "zod";
 import {
   DEGREE_LEVELS,
   DEPARTMENT_ARCHETYPES,
+  FAMILY_PLANS,
+  GENDERS,
+  HAS_KIDS,
   INDUSTRIES,
+  LIFESTYLE_FREQUENCY,
   LIMITS,
   OPEN_TO_WORK,
   PHOTO_SLOTS,
   PIPELINE_STAGES,
+  POLITICS,
 } from "./taxonomies";
 
 const currentYear = new Date().getFullYear();
@@ -35,6 +40,7 @@ export const behavioralAnswerSchema = z.object({
 });
 
 export const profileSchema = z.object({
+  firstName: z.string().min(1).max(40),
   headline: z.string().min(1).max(80),
   executiveSummary: z.string().max(500).optional(),
   currentTitle: z.string().max(80).optional(),
@@ -43,6 +49,13 @@ export const profileSchema = z.object({
   openToWork: z.enum(OPEN_TO_WORK),
   archetype: z.enum(DEPARTMENT_ARCHETYPES).optional(),
   birthdate: z.string().date(),
+  gender: z.enum(GENDERS),
+  familyPlans: z.enum(FAMILY_PLANS).optional(),
+  hasKids: z.enum(HAS_KIDS).optional(),
+  smoking: z.enum(LIFESTYLE_FREQUENCY).optional(),
+  drinking: z.enum(LIFESTYLE_FREQUENCY).optional(),
+  cannabis: z.enum(LIFESTYLE_FREQUENCY).optional(),
+  politics: z.enum(POLITICS).optional(),
   experience: z.array(experienceSchema).max(LIMITS.maxExperienceEntries),
   education: z.array(educationSchema).max(LIMITS.maxEducationEntries),
   behavioralAnswers: z.array(behavioralAnswerSchema).max(LIMITS.maxBehavioralAnswers),
@@ -56,11 +69,16 @@ const vector = <T extends z.ZodType>(value: T) =>
 export const preferencesSchema = z.object({
   ageRange: vector(z.tuple([z.number().int().min(18), z.number().int().max(99)])),
   maxDistanceKm: z.number().int().min(2).max(300),
-  genders: vector(z.array(z.string())),
+  genders: vector(z.array(z.enum(GENDERS))),
   heightRangeCm: vector(z.tuple([z.number(), z.number()])).optional(),
   ethnicities: vector(z.array(z.string())).optional(),
   religions: vector(z.array(z.string())).optional(),
-  familyPlans: vector(z.array(z.string())).optional(),
+  familyPlans: vector(z.array(z.enum(FAMILY_PLANS))).optional(),
+  hasKids: vector(z.array(z.enum(HAS_KIDS))).optional(),
+  smoking: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
+  drinking: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
+  cannabis: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
+  politics: vector(z.array(z.enum(POLITICS))).optional(),
   industries: vector(z.array(z.enum(INDUSTRIES))).optional(),
   minDegreeLevel: vector(z.enum(DEGREE_LEVELS)).optional(),
   archetypes: vector(z.array(z.enum(DEPARTMENT_ARCHETYPES))).optional(),
@@ -69,7 +87,8 @@ export const preferencesSchema = z.object({
 export type Preferences = z.infer<typeof preferencesSchema>;
 
 export const coverLetterSchema = z.object({
-  toUserId: z.string().uuid(),
+  // Clerk user ids are text ("user_…"), not uuids
+  toUserId: z.string().min(1),
   /** What they screened on: a photo slot or a profile item id. */
   annotatedItem: z.object({
     kind: z.enum(["photo", "behavioral_answer", "experience", "education", "headline"]),

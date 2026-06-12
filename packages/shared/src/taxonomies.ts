@@ -83,6 +83,33 @@ export type DepartmentArchetype = (typeof DEPARTMENT_ARCHETYPES)[number];
 export const OPEN_TO_WORK = ["committed", "casual", "networking"] as const;
 export type OpenToWork = (typeof OPEN_TO_WORK)[number];
 
+export const GENDERS = ["man", "woman", "nonbinary"] as const;
+export type Gender = (typeof GENDERS)[number];
+
+export const FAMILY_PLANS = [
+  "wants_kids",
+  "open_to_kids",
+  "does_not_want_kids",
+  "not_sure",
+] as const;
+export type FamilyPlan = (typeof FAMILY_PLANS)[number];
+
+export const HAS_KIDS = ["no_kids", "has_kids"] as const;
+export type HasKids = (typeof HAS_KIDS)[number];
+
+/** Shared scale for smoking / drinking / cannabis. */
+export const LIFESTYLE_FREQUENCY = ["yes", "sometimes", "no"] as const;
+export type LifestyleFrequency = (typeof LIFESTYLE_FREQUENCY)[number];
+
+export const POLITICS = [
+  "liberal",
+  "moderate",
+  "conservative",
+  "apolitical",
+  "other",
+] as const;
+export type Politics = (typeof POLITICS)[number];
+
 export const BEHAVIORAL_QUESTIONS = [
   "Tell me about a time you went above and beyond on a date.",
   "What is your greatest weakness?",

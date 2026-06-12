@@ -15,6 +15,8 @@ Approved 2026-06-11. Chunked for easy digestion:
 | [05-matching.md](05-matching.md) | Recruiter Score algorithm, geo, cold start, screen map, notifications |
 | [06-stack.md](06-stack.md) | Platform decision, full tech stack, hosting, data model |
 | [07-roadmap.md](07-roadmap.md) | Phases 0–7, cold-start strategy, costs, verification checklist |
+| [08-backend-contracts.md](08-backend-contracts.md) | The write-path map: the seven Edge Functions, push dispatch, lifecycle invariants, pinned decisions |
+| [09-setup-runbook.md](09-setup-runbook.md) | Clerk↔Supabase third-party auth, Expo route-group restructure, EAS dev builds, service checklist |
 
 ## The two laws
 
