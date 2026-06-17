@@ -91,11 +91,12 @@ export default function PrivacyPage() {
       <h2>Account deletion</h2>
       <p>
         You can delete your account and associated data at any time from
-        within the app (&ldquo;{glossary.profile.title}&rdquo; →
+        within the app (&ldquo;{glossary.you.title}&rdquo; →
         settings), or by emailing{" "}
         <strong>[SUPPORT_EMAIL — set before launch]</strong>. Deletion removes
-        your profile, photos, matches, and messages from production systems;
-        residual copies in encrypted backups expire on a rolling basis.
+        your profile, your hoard, and the benches you&rsquo;ve added from
+        production systems; residual copies in encrypted backups expire on a
+        rolling basis.
       </p>
 
       <h2>Data retention</h2>

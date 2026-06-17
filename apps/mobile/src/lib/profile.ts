@@ -1,24 +1,14 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from './supabase';
 
+// [Opus 4.8] Benchhoard: a hoarder is just an identity with an optional name.
 export type ProfileRow = {
   user_id: string;
-  first_name: string;
-  headline: string;
-  executive_summary: string | null;
-  current_title: string | null;
-  employer: string | null;
-  industry: string | null;
-  archetype: string | null;
-  open_to_work: 'committed' | 'casual' | 'networking';
-  birthdate: string;
-  gender: string;
-  out_of_office: boolean;
+  display_name: string | null;
 };
 
-/** The gate query: null = signed in but not onboarded yet. */
 export function useMyProfile() {
   const { userId, isSignedIn } = useAuth();
   return useQuery({
@@ -27,13 +17,25 @@ export function useMyProfile() {
     queryFn: async (): Promise<ProfileRow | null> => {
       const { data, error } = await supabase
         .from('profiles')
-        .select(
-          'user_id, first_name, headline, executive_summary, current_title, employer, industry, archetype, open_to_work, birthdate, gender, out_of_office',
-        )
+        .select('user_id, display_name')
         .eq('user_id', userId!)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
+  });
+}
+
+/** Create the profile row lazily on first sign-in (idempotent, server-side). */
+export function useEnsureProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (displayName?: string) => {
+      const { error } = await supabase.rpc('bh_ensure_profile', {
+        display_name: displayName ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-profile'] }),
   });
 }

@@ -1,126 +1,64 @@
+// [Opus 4.8] Benchhoard validation schemas — replaces the dating-app schemas.
 import { z } from "zod";
 import {
-  DEGREE_LEVELS,
-  DEPARTMENT_ARCHETYPES,
-  FAMILY_PLANS,
-  GENDERS,
-  HAS_KIDS,
-  INDUSTRIES,
-  LIFESTYLE_FREQUENCY,
+  AMENITIES,
   LIMITS,
-  OPEN_TO_WORK,
-  PHOTO_SLOTS,
-  PIPELINE_STAGES,
-  POLITICS,
+  MATERIALS,
+  NOISE_LEVELS,
+  SEAT_TYPES,
+  SIGHTLINES,
+  SUN_EXPOSURE,
 } from "./taxonomies";
 
-const currentYear = new Date().getFullYear();
+/** WGS84 coordinate pair — the contract for everything the map writes. */
+export const latitudeSchema = z.number().min(-90).max(90);
+export const longitudeSchema = z.number().min(-180).max(180);
 
-/** Store-required 18+ age gate (07-roadmap.md Phase 0). UI gates earlier; this is the contract. */
-const isAtLeast18 = (isoDate: string) => {
-  const cutoff = new Date();
-  cutoff.setFullYear(cutoff.getFullYear() - 18);
-  return new Date(`${isoDate}T00:00:00Z`).getTime() <= cutoff.getTime();
-};
-
-export const experienceSchema = z
-  .object({
-    title: z.string().min(1).max(80),
-    company: z.string().max(80).optional(),
-    industry: z.enum(INDUSTRIES),
-    startYear: z.number().int().min(1950).max(currentYear),
-    endYear: z.number().int().min(1950).max(currentYear).nullable(), // null = Present
-    oneLiner: z.string().max(LIMITS.experienceOneLinerMaxChars).optional(),
-  })
-  .refine((e) => e.endYear === null || e.endYear >= e.startYear, {
-    message: "End year can't be before start year",
-    path: ["endYear"],
-  });
-export type Experience = z.infer<typeof experienceSchema>;
-
-export const educationSchema = z.object({
-  school: z.string().min(1).max(100),
-  degreeLevel: z.enum(DEGREE_LEVELS),
-  field: z.string().max(80).optional(),
-  classYear: z.number().int().min(1950).max(currentYear + 8),
+/**
+ * A bench as submitted from the Add-a-Bench flow. The server turns lat/lng into
+ * a PostGIS `POINT(lng lat)` exactly the way the old onboarding flow did.
+ */
+export const benchSchema = z.object({
+  name: z.string().max(80).optional(),
+  lat: latitudeSchema,
+  lng: longitudeSchema,
+  seatType: z.enum(SEAT_TYPES),
+  material: z.enum(MATERIALS).optional(),
+  sunExposure: z.enum(SUN_EXPOSURE).optional(),
+  noise: z.enum(NOISE_LEVELS).optional(),
+  sightline: z.enum(SIGHTLINES).optional(),
+  amenities: z
+    .array(z.enum(AMENITIES))
+    .max(AMENITIES.length)
+    .default([])
+    .refine((a) => new Set(a).size === a.length, {
+      message: "Amenities must be unique",
+    }),
+  capacity: z.number().int().min(1).max(20).optional(),
+  notes: z.string().max(LIMITS.noteMaxChars).optional(),
 });
-export type Education = z.infer<typeof educationSchema>;
+export type BenchInput = z.infer<typeof benchSchema>;
 
-export const behavioralAnswerSchema = z.object({
-  question: z.string().min(1),
-  answer: z.string().min(1).max(300),
+/** A comfort review left on a bench (1 = unusable, 5 = perfect). */
+export const benchReviewSchema = z.object({
+  benchId: z.string().uuid(),
+  comfort: z.number().int().min(1).max(5),
+  note: z.string().max(LIMITS.reviewNoteMaxChars).optional(),
 });
+export type BenchReview = z.infer<typeof benchReviewSchema>;
 
-export const profileSchema = z.object({
-  firstName: z.string().min(1).max(40),
-  headline: z.string().min(1).max(80),
-  executiveSummary: z.string().max(500).optional(),
-  currentTitle: z.string().max(80).optional(),
-  employer: z.string().max(80).optional(),
-  industry: z.enum(INDUSTRIES).optional(),
-  openToWork: z.enum(OPEN_TO_WORK),
-  archetype: z.enum(DEPARTMENT_ARCHETYPES).optional(),
-  birthdate: z.string().date().refine(isAtLeast18, "You must be 18 or older"),
-  gender: z.enum(GENDERS),
-  familyPlans: z.enum(FAMILY_PLANS).optional(),
-  hasKids: z.enum(HAS_KIDS).optional(),
-  smoking: z.enum(LIFESTYLE_FREQUENCY).optional(),
-  drinking: z.enum(LIFESTYLE_FREQUENCY).optional(),
-  cannabis: z.enum(LIFESTYLE_FREQUENCY).optional(),
-  politics: z.enum(POLITICS).optional(),
-  experience: z.array(experienceSchema).max(LIMITS.maxExperienceEntries),
-  education: z.array(educationSchema).max(LIMITS.maxEducationEntries),
-  behavioralAnswers: z.array(behavioralAnswerSchema).max(LIMITS.maxBehavioralAnswers),
+/** Claiming ("hoarding") a bench, with an optional personal tag. */
+export const hoardEntrySchema = z.object({
+  benchId: z.string().uuid(),
+  label: z.string().max(LIMITS.labelMaxChars).optional(),
 });
-export type Profile = z.infer<typeof profileSchema>;
+export type HoardEntry = z.infer<typeof hoardEntrySchema>;
 
-/** A preference vector: a value plus whether it's a hard Dealbreaker ("Minimum Qualification"). */
-const vector = <T extends z.ZodType>(value: T) =>
-  z.object({ value, isDealbreaker: z.boolean().default(false) });
-
-export const preferencesSchema = z.object({
-  ageRange: vector(z.tuple([z.number().int().min(18), z.number().int().max(99)])),
-  maxDistanceKm: z.number().int().min(2).max(300),
-  genders: vector(z.array(z.enum(GENDERS))),
-  heightRangeCm: vector(z.tuple([z.number(), z.number()])).optional(),
-  ethnicities: vector(z.array(z.string())).optional(),
-  religions: vector(z.array(z.string())).optional(),
-  familyPlans: vector(z.array(z.enum(FAMILY_PLANS))).optional(),
-  hasKids: vector(z.array(z.enum(HAS_KIDS))).optional(),
-  smoking: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
-  drinking: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
-  cannabis: vector(z.array(z.enum(LIFESTYLE_FREQUENCY))).optional(),
-  politics: vector(z.array(z.enum(POLITICS))).optional(),
-  industries: vector(z.array(z.enum(INDUSTRIES))).optional(),
-  minDegreeLevel: vector(z.enum(DEGREE_LEVELS)).optional(),
-  archetypes: vector(z.array(z.enum(DEPARTMENT_ARCHETYPES))).optional(),
-  openToWork: vector(z.array(z.enum(OPEN_TO_WORK))).optional(),
+/** Map query for the nearest benches around a point. */
+export const nearbyQuerySchema = z.object({
+  lat: latitudeSchema,
+  lng: longitudeSchema,
+  radiusKm: z.number().int().min(1).max(LIMITS.nearbyRadiusKmMax).default(LIMITS.nearbyRadiusKmDefault),
+  limit: z.number().int().min(1).max(LIMITS.nearbyLimit).default(LIMITS.nearbyLimit),
 });
-export type Preferences = z.infer<typeof preferencesSchema>;
-
-export const coverLetterSchema = z.object({
-  // Clerk user ids are text ("user_…"), not uuids
-  toUserId: z.string().min(1),
-  /** What they screened on: a photo slot or a profile item id. */
-  annotatedItem: z.object({
-    kind: z.enum(["photo", "behavioral_answer", "experience", "education", "headline"]),
-    id: z.string(),
-  }),
-  body: z.string().min(1).max(LIMITS.coverLetterMaxChars),
-  isHeadhunt: z.boolean().default(false),
-});
-export type CoverLetter = z.infer<typeof coverLetterSchema>;
-
-export const messageSchema = z.object({
-  matchId: z.string().uuid(),
-  body: z.string().min(1).max(2000),
-});
-
-export const pipelineStageSchema = z.enum(PIPELINE_STAGES);
-
-const photoSlotKeys = PHOTO_SLOTS.map((s) => s.key) as [string, ...string[]];
-export const photoSchema = z.object({
-  slot: z.enum(photoSlotKeys),
-  storagePath: z.string(),
-  position: z.number().int().min(0).max(5),
-});
+export type NearbyQuery = z.infer<typeof nearbyQuerySchema>;

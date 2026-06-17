@@ -8,25 +8,27 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 /**
- * LTB palette — LinkedIn drag, Hinge bones. The app should look like a B2B
- * SaaS tool that is inexplicably a dating app.
+ * [Opus 4.8] Benchhoard palette — park greens and warm-wood paper. The app
+ * should feel like a quiet field guide to the city, not a corporate tool. The
+ * `LTB` export name is kept so the whole app's `import { LTB }` sites stay put.
  */
 export const LTB = {
-  primary: '#0A66C2',        // the blue
-  primaryPressed: '#084E96',
-  navy: '#1B3A5C',           // headers
-  paper: '#FFFFFF',          // cards ("resume paper")
-  feedGray: '#F3F2EF',       // app background
-  divider: '#E0DFDC',
-  ink: '#1D2226',            // primary text
-  inkSecondary: '#56687A',
-  openToWork: {
-    committed: '#2E7D32',    // green — Open to Commitment
-    casual: '#7B1FA2',       // purple — Looking for Contract Work
-    networking: '#757575',   // grey — Happily Employed (Just Networking)
+  primary: '#2F7D4F',        // park green — primary actions
+  primaryPressed: '#256340',
+  navy: '#1E3A2F',           // deep forest — headers
+  paper: '#FFFFFF',          // cards
+  feedGray: '#F4F1EA',       // warm paper — app background
+  divider: '#E4DFD3',
+  ink: '#1F2A23',            // primary text
+  inkSecondary: '#5E6B5A',
+  /** Hostility Index marker scale — welcoming → hostile. */
+  hostility: {
+    welcoming: '#2F7D4F',    // green — true bench, picnic table
+    moderate: '#C9842B',     // amber — divided / individual seats
+    hostile: '#B3402A',      // rust — ledge, leaning rail
   },
-  reject: '#B3261E',
-  gold: '#B8860B',           // Headhunt accents
+  accent: '#B8860B',         // discovery / badge gold
+  danger: '#B3402A',
 } as const;
 
 export const Colors = {
@@ -34,15 +36,15 @@ export const Colors = {
     text: LTB.ink,
     background: LTB.feedGray,
     backgroundElement: LTB.paper,
-    backgroundSelected: '#E8F0F9',
+    backgroundSelected: '#E7F0E8',
     textSecondary: LTB.inkSecondary,
   },
-  // v1 ships light-only (the corporate-memo look IS light mode); dark tracks it
+  // v1 ships light-only (the field-guide look IS light mode); dark tracks it
   dark: {
     text: LTB.ink,
     background: LTB.feedGray,
     backgroundElement: LTB.paper,
-    backgroundSelected: '#E8F0F9',
+    backgroundSelected: '#E7F0E8',
     textSecondary: LTB.inkSecondary,
   },
 } as const;
@@ -86,3 +88,10 @@ export const Spacing = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+/** Map a seat type's Hostility rank (0–4) to its marker color. */
+export function hostilityColor(rank: number): string {
+  if (rank <= 0) return LTB.hostility.welcoming;
+  if (rank <= 2) return LTB.hostility.moderate;
+  return LTB.hostility.hostile;
+}

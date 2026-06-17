@@ -1,147 +1,118 @@
+// [Opus 4.8] Benchhoard taxonomies — replaces the dating-app domain.
 /**
- * Fixed taxonomies — single source of truth for profile pickers, filters,
- * and analytics. Stored in the DB as the string values below.
+ * Fixed taxonomies — single source of truth for bench detail pickers, map
+ * filters, gamification, and analytics. Stored in the DB as the string values
+ * below.
  */
 
-export const INDUSTRIES = [
-  "Tech",
-  "Finance",
-  "Engineering",
-  "Manufacturing",
-  "Retail",
-  "Healthcare / Medicine",
-  "Academia / Research",
-  "Law",
-  "Education",
-  "Government",
-  "Marketing / Media",
-  "Consulting",
-  "Real Estate",
-  "Construction / Trades",
-  "Hospitality",
-  "Arts / Entertainment",
-  "Nonprofit",
-  "Science",
-  "Military",
-  "Student",
-  "Other",
+/**
+ * The Hostility Index spectrum — how welcoming a seat is, from a flat "true
+ * bench" you can lie down on to a hostile leaning rail designed to move you
+ * along. Ordered welcoming → hostile; the rank lives in HOSTILITY_RANK.
+ */
+export const SEAT_TYPES = [
+  "true_bench",
+  "picnic_table",
+  "individual_seats",
+  "divided_bench",
+  "ledge",
+  "leaning_rail",
 ] as const;
-export type Industry = (typeof INDUSTRIES)[number];
+export type SeatType = (typeof SEAT_TYPES)[number];
 
-export const DEGREE_LEVELS = [
-  "High School",
-  "Associate",
-  "Bachelor's",
-  "Master's",
-  "PhD",
-  "MD",
-  "JD",
-  "MBA",
-  "Trade Certification",
-  "Self-Taught",
-] as const;
-export type DegreeLevel = (typeof DEGREE_LEVELS)[number];
-
-/** Ordering for "Bachelor's or higher" style filters. Non-ranked entries share a tier. */
-export const DEGREE_RANK: Record<DegreeLevel, number> = {
-  "High School": 0,
-  "Self-Taught": 0,
-  "Trade Certification": 1,
-  Associate: 1,
-  "Bachelor's": 2,
-  "Master's": 3,
-  MBA: 3,
-  JD: 4,
-  MD: 4,
-  PhD: 4,
+/**
+ * The Hostility Index: 0 = completely welcoming (lie down, spread out), 4 =
+ * openly hostile (you cannot rest here). Drives marker color and the
+ * "comfortable enough to sit" map filter, the way DEGREE_RANK drove the
+ * "Bachelor's or higher" filter in the old domain.
+ */
+export const HOSTILITY_RANK: Record<SeatType, number> = {
+  true_bench: 0,
+  picnic_table: 0,
+  individual_seats: 1,
+  divided_bench: 2,
+  ledge: 3,
+  leaning_rail: 4,
 };
 
-export const PHOTO_SLOTS = [
-  { key: "headshot", label: "Professional Headshot", required: true },
-  { key: "business_casual", label: "Business Casual", required: false },
-  { key: "at_the_office", label: "At the Office / In the Field", required: false },
-  { key: "casual_friday", label: "Casual Friday", required: false },
+export const MATERIALS = [
+  "wood",
+  "stone",
+  "metal",
+  "concrete",
+  "plastic",
+  "mixed",
 ] as const;
-export type PhotoSlot = (typeof PHOTO_SLOTS)[number]["key"];
+export type Material = (typeof MATERIALS)[number];
 
-export const DEPARTMENT_ARCHETYPES = [
-  "Finance Bro",
-  "Tech Bro",
-  "Neuroscience Girlie",
-  "Consultant (Will Explain Your Own Job To You)",
-  "Founder Era",
-  "Med Student (Unavailable Until 2031)",
-  "Gym Is My Second Office",
-  "Chronically On Email",
-  "Lab Rat (Affectionate)",
-  "Spreadsheet Romantic",
-  "Recovering Academic",
-  "Government Cheese",
+/** The Exposure Factor — baked in the sun, dappled, or fully shaded. */
+export const SUN_EXPOSURE = ["full_sun", "partial_shade", "full_shade"] as const;
+export type SunExposure = (typeof SUN_EXPOSURE)[number];
+
+/** The Audio Profile — how loud the spot is. */
+export const NOISE_LEVELS = ["quiet", "moderate", "loud"] as const;
+export type NoiseLevel = (typeof NOISE_LEVELS)[number];
+
+/** The Sightlines — what you're looking at while you sit. */
+export const SIGHTLINES = [
+  "people_watching",
+  "nature",
+  "water",
+  "skyline",
+  "street",
+  "wall",
 ] as const;
-export type DepartmentArchetype = (typeof DEPARTMENT_ARCHETYPES)[number];
+export type Sightline = (typeof SIGHTLINES)[number];
 
-export const OPEN_TO_WORK = ["committed", "casual", "networking"] as const;
-export type OpenToWork = (typeof OPEN_TO_WORK)[number];
-
-export const GENDERS = ["man", "woman", "nonbinary"] as const;
-export type Gender = (typeof GENDERS)[number];
-
-export const FAMILY_PLANS = [
-  "wants_kids",
-  "open_to_kids",
-  "does_not_want_kids",
-  "not_sure",
+/** Multi-select amenities near or built into the bench. Stored as text[]. */
+export const AMENITIES = [
+  "backrest",
+  "covered",
+  "lit_at_night",
+  "near_water_fountain",
+  "near_restroom",
+  "near_trash",
+  "wheelchair_accessible",
 ] as const;
-export type FamilyPlan = (typeof FAMILY_PLANS)[number];
+export type Amenity = (typeof AMENITIES)[number];
 
-export const HAS_KIDS = ["no_kids", "has_kids"] as const;
-export type HasKids = (typeof HAS_KIDS)[number];
-
-/** Shared scale for smoking / drinking / cannabis. */
-export const LIFESTYLE_FREQUENCY = ["yes", "sometimes", "no"] as const;
-export type LifestyleFrequency = (typeof LIFESTYLE_FREQUENCY)[number];
-
-export const POLITICS = [
-  "liberal",
-  "moderate",
-  "conservative",
-  "apolitical",
-  "other",
+/**
+ * Discovery incentive — achievements a hoarder can unlock. Fixed list so the
+ * badge wall stays curated and the unlock checks have a stable key to write to
+ * `badges_earned.badge` (same shape rationale as the old PHOTO_SLOTS list).
+ */
+export const BADGES = [
+  { key: "first_claim", label: "First Claim", description: "Hoard your first bench." },
+  { key: "pathfinder", label: "Pathfinder", description: "Add your first bench to the map." },
+  { key: "cartographer", label: "Cartographer", description: "Add ten benches to the map." },
+  { key: "shade_seeker", label: "Shade Seeker", description: "Hoard a fully shaded bench." },
+  { key: "night_owl", label: "Night Owl", description: "Hoard a bench that's lit at night." },
+  { key: "people_watcher", label: "People Watcher", description: "Hoard a prime people-watching spot." },
+  { key: "centurion", label: "Centurion", description: "Earn one hundred discovery points." },
+  { key: "hoarder", label: "Certified Hoarder", description: "Claim twenty-five benches." },
 ] as const;
-export type Politics = (typeof POLITICS)[number];
+export type Badge = (typeof BADGES)[number]["key"];
 
-export const BEHAVIORAL_QUESTIONS = [
-  "Tell me about a time you went above and beyond on a date.",
-  "What is your greatest weakness?",
-  "Where do you see yourself in five years?",
-  "Why should we hire you?",
-  "Walk me through your dating resume.",
-  "Describe a conflict and how you resolved it.",
-  "What are your salary expectations?",
-  "Do you have any questions for us?",
-  "My toxic trait is checking Slack on vacation. Yours?",
-  "My 5am morning routine includes…",
-  "Describe your ideal off-site.",
-  "What does work-life balance mean to you, romantically?",
-] as const;
+/**
+ * Points awarded for each contribution to the urban archive. Must match the
+ * server-side award logic in the bh_* RPCs.
+ */
+export const DISCOVERY_POINTS = {
+  addBench: 25,
+  reviewBench: 10,
+  firstVisit: 5,
+  hoardBench: 2,
+} as const;
 
-export const PIPELINE_STAGES = [
-  "sourced",
-  "initial_screen",
-  "second_round",
-  "final_round",
-  "offer_extended",
-] as const;
-export type PipelineStage = (typeof PIPELINE_STAGES)[number];
-
-/** Business rules that must match the server-side Edge Functions. */
+/** Business rules shared by the client and the server-side RPCs. */
 export const LIMITS = {
-  freeScreensPerDay: 8,
-  maxExperienceEntries: 3,
-  maxEducationEntries: 2,
-  maxBehavioralAnswers: 3,
-  experienceOneLinerMaxChars: 100,
-  coverLetterMaxChars: 280,
-  rejectRecycleDays: 30,
-  newHireBoostDays: 7,
+  addBenchMaxPerDay: 20,
+  hoardMax: 200,
+  nearbyRadiusKmDefault: 2,
+  nearbyRadiusKmMax: 25,
+  nearbyLimit: 50,
+  photoMaxPerBench: 6,
+  noteMaxChars: 280,
+  labelMaxChars: 60,
+  reviewNoteMaxChars: 200,
 } as const;

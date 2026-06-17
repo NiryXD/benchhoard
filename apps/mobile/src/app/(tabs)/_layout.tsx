@@ -1,22 +1,17 @@
-import { useAuth } from '@clerk/clerk-expo';
 import { glossary } from '@ltb/shared';
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 
 import { LTB } from '@/constants/theme';
-import { useMyProfile } from '@/lib/profile';
 
+// [Opus 4.8] Anonymous-first: anyone can browse the map, compass, and a bench's
+// qualities without an account. Sign-in is only prompted on write actions
+// (hoarding, adding, reviewing) via useRequireAuth — so no gate here.
 function TabIcon({ glyph }: { glyph: string }) {
   return <Text style={{ fontSize: 18 }}>{glyph}</Text>;
 }
 
 export default function TabsLayout() {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { data: profile, isLoading } = useMyProfile();
-  if (!isLoaded || (isSignedIn && isLoading)) return null;
-  if (!isSignedIn) return <Redirect href="/(auth)/sign-in" />;
-  if (!profile) return <Redirect href="/(onboarding)" />;
-
   return (
     <Tabs
       screenOptions={{
@@ -31,31 +26,32 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: glossary.tabs.candidates,
-          tabBarIcon: () => <TabIcon glyph="🗂️" />,
+          title: glossary.tabs.map,
+          headerTitle: glossary.map.title,
+          tabBarIcon: () => <TabIcon glyph="🗺️" />,
         }}
       />
       <Tabs.Screen
-        name="inbound"
+        name="compass"
         options={{
-          title: glossary.tabs.inbound,
-          headerTitle: glossary.inbound.title,
-          tabBarIcon: () => <TabIcon glyph="📥" />,
+          title: glossary.tabs.compass,
+          headerTitle: glossary.compass.title,
+          tabBarIcon: () => <TabIcon glyph="🧭" />,
         }}
       />
       <Tabs.Screen
-        name="pipeline"
+        name="hoard"
         options={{
-          title: glossary.tabs.pipeline,
-          headerTitle: glossary.pipeline.title,
-          tabBarIcon: () => <TabIcon glyph="📊" />,
+          title: glossary.tabs.hoard,
+          headerTitle: glossary.hoard.title,
+          tabBarIcon: () => <TabIcon glyph="📌" />,
         }}
       />
       <Tabs.Screen
         name="you"
         options={{
           title: glossary.tabs.you,
-          tabBarIcon: () => <TabIcon glyph="📄" />,
+          tabBarIcon: () => <TabIcon glyph="🌳" />,
         }}
       />
     </Tabs>

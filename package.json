@@ -1,5 +1,5 @@
 {
-  "name": "letstouchbase",
+  "name": "benchhoard",
   "private": true,
   "version": "0.1.0",
   "workspaces": [
@@ -11,6 +11,7 @@
     "android": "npm run android --workspace apps/mobile",
     "web": "npm run dev --workspace web",
     "web:build": "npm run build --workspace web",
-    "seed": "node supabase/seed/seed.mjs"
+    "seed:benches": "node supabase/seed/benches-osm.mjs",
+    "test:shared": "npm run test --workspace packages/shared"
   }
 }

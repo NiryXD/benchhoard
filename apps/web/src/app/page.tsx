@@ -1,26 +1,20 @@
 import Link from "next/link";
-import { glossary } from "@ltb/shared";
+import { BADGES, glossary, HOSTILITY_RANK, SEAT_TYPES, type SeatType } from "@ltb/shared";
 import { WaitlistForm } from "@/components/WaitlistForm";
 
-const KPIS = [
-  "Mutual interest ▲ 23% QoQ",
-  "Alignment calls scheduled: 12,409",
-  "Time-to-offer ▼ 4.2 days",
-  "Candidate satisfaction: 104%",
-  "Rejection letters delivered with dignity: 100%",
-  "Ghosting incidents: 0 (compliance violation)",
-  "Projected headcount: you + 1",
+// [Opus 4.8] Benchhoard landing — a quiet field guide to public seating.
+const FACTS = [
+  "Benches mapped: growing daily",
+  "Hostility Index: from true bench to leaning rail",
+  "Compass: points you to the nearest place to sit",
+  "Browsing is free, forever",
+  "Built on OpenStreetMap + the benches you add",
+  "Hoard your favorite spots",
+  "A small act of reclaiming public space",
 ];
 
-const GLOSSARY_ROWS: Array<[string, string]> = [
-  ["Swiping", "Candidate Review"],
-  ["Your profile", glossary.profile.title],
-  ["Liking someone", glossary.actions.screen],
-  ["It's a match!", glossary.match.celebration],
-  ["Chatting", glossary.match.chat],
-  ["Ghosting", glossary.actions.rejectionLetter],
-  ["Breaking up", glossary.match.exitInterview],
-];
+const hostilityLabel = (rank: number) =>
+  rank <= 0 ? glossary.hostility.welcoming : rank <= 2 ? glossary.hostility.moderate : glossary.hostility.hostile;
 
 export default function Home() {
   return (
@@ -32,20 +26,20 @@ export default function Home() {
             {glossary.brand.name}
           </Link>
           <nav className="topnav" aria-label="Primary">
-            <a href="#process">The Process</a>
-            <a href="#glossary">Terminology</a>
-            <a href="#pricing">Compensation</a>
+            <a href="#qualities">The Qualities</a>
+            <a href="#hoard">Hoarding</a>
+            <a href="#pricing">Pricing</a>
           </nav>
           <a href="#waitlist" className="btn btn-primary">
-            Join the Waitlist
+            Get notified
           </a>
         </div>
       </header>
 
       <div className="ticker" aria-hidden="true">
         <div className="ticker-track">
-          {[...KPIS, ...KPIS].map((kpi, i) => (
-            <span key={i}>{kpi}</span>
+          {[...FACTS, ...FACTS].map((fact, i) => (
+            <span key={i}>{fact}</span>
           ))}
         </div>
       </div>
@@ -53,199 +47,146 @@ export default function Home() {
       <main>
         <section className="wrap hero">
           <div>
-            <span className="eyebrow rise rise-1">
-              A professional network for falling in love
-            </span>
-            <h1 className="rise rise-2">
-              Let&rsquo;s circle back on being alone.
-            </h1>
+            <span className="eyebrow rise rise-1">A field guide to sitting down</span>
+            <h1 className="rise rise-2">{glossary.brand.tagline}</h1>
             <p className="sub rise rise-3">
-              {glossary.brand.name} runs your dating life like a hiring
-              pipeline: structured screens, formal offers, and rejection
-              letters with full dignity.{" "}
-              <strong>{glossary.brand.tagline}</strong>
+              {glossary.brand.name} maps the public benches around you and tells you what each one is
+              actually like — flat or boxed-in, sun or shade, quiet or loud, and what you&rsquo;ll be
+              looking at. A compass points you to the nearest one.{" "}
+              <strong>Find a place to pause, on your own terms.</strong>
             </p>
             <div className="hero-ctas rise rise-4">
               <a href="#waitlist" className="btn btn-primary">
-                Submit Your Resume
+                Get notified at launch
               </a>
-              <a href="#process" className="btn btn-ghost">
-                Review the Hiring Process
+              <a href="#qualities" className="btn btn-ghost">
+                See what we track
               </a>
             </div>
             <p className="hero-fineprint rise rise-4">
-              Strictly 18+. Android first. Free tier includes the entire
-              product — see <a href="#pricing">compensation philosophy</a>.
+              Browsing is free — no account needed. Sign in only to hoard benches and earn discovery
+              points. <a href="#pricing">Pricing philosophy</a>.
             </p>
           </div>
 
           <div className="resume-card rise rise-5" aria-hidden="true">
-            <span className="stamp">{glossary.discovery.recruitersPick}</span>
+            <span className="stamp">{glossary.hostility.welcoming}</span>
             <div className="resume-head">
-              <div className="resume-avatar">JA</div>
+              <div className="resume-avatar">🪑</div>
               <div>
-                <div className="resume-name">Jordan A.</div>
-                <div className="resume-role">
-                  Senior Synergy Associate · 6 yrs experience
-                </div>
-                <span className="otw">
-                  {glossary.openToWorkStatuses.committed}
-                </span>
+                <div className="resume-name">The willow bench</div>
+                <div className="resume-role">True bench · faces the fountain</div>
+                <span className="otw">{glossary.sunExposure.full_shade}</span>
               </div>
             </div>
             <hr className="resume-rule" />
-            <div className="resume-section-label">{glossary.profile.bio}</div>
-            <blockquote>
-              &ldquo;Results-oriented romantic with a proven track record of
-              remembering birthdays.&rdquo;
-            </blockquote>
+            <div className="resume-section-label">{glossary.bench.sightline}</div>
+            <blockquote>&ldquo;{glossary.sightlines.water} — quiet enough to hear it.&rdquo;</blockquote>
             <hr className="resume-rule" />
-            <div className="resume-section-label">Behavioral Question</div>
+            <div className="resume-section-label">{glossary.bench.amenities}</div>
             <blockquote>
-              &ldquo;My toxic trait is checking Slack on vacation.&rdquo;
+              {glossary.amenities.backrest} · {glossary.amenities.near_water_fountain}
             </blockquote>
             <div className="resume-actions">
-              <span className="btn btn-reject">{glossary.actions.reject}</span>
-              <span className="btn btn-primary">
-                {glossary.actions.screen}
-              </span>
+              <span className="btn btn-ghost">{glossary.bench.directions}</span>
+              <span className="btn btn-primary">{glossary.hoard.claim}</span>
             </div>
           </div>
         </section>
 
-        <section className="section" id="process">
+        <section className="section" id="qualities">
           <div className="wrap">
-            <span className="eyebrow">Standard Operating Procedure</span>
-            <h2>Every great relationship starts with a rigorous process.</h2>
+            <span className="eyebrow">The Hostility Index</span>
+            <h2>Not all seating wants you to stay.</h2>
             <p className="section-lede">
-              No infinite swiping. No ghosting. Every candidate gets a
-              decision, every decision gets a letter, and every letter is on
-              letterhead.
-            </p>
-            <div className="process-grid">
-              <div className="process-card">
-                <div className="process-step">Step 01</div>
-                <h3>{glossary.onboarding.title}</h3>
-                <p>
-                  Labeled photo slots, real credentials, an executive summary.
-                  &ldquo;{glossary.onboarding.dressCode}&rdquo;
-                </p>
-              </div>
-              <div className="process-card">
-                <div className="process-step">Step 02</div>
-                <h3>Review {glossary.tabs.candidates}</h3>
-                <p>
-                  One resume at a time, eight screens a day. Respond to a
-                  specific line item with a {glossary.actions.coverLetter} — or
-                  pass with dignity.
-                </p>
-              </div>
-              <div className="process-card">
-                <div className="process-step">Step 03</div>
-                <h3>{glossary.match.celebration}</h3>
-                <p>
-                  Mutual interest triggers a formal offer letter.{" "}
-                  {glossary.match.celebrationSub}
-                </p>
-              </div>
-              <div className="process-card">
-                <div className="process-step">Step 04</div>
-                <h3>{glossary.match.chat}s</h3>
-                <p>
-                  Real-time chat with your pipeline. Exit any engagement
-                  professionally via the {glossary.match.exitInterview}.
-                </p>
-              </div>
-            </div>
-            <div className="pipeline" aria-label="Pipeline stages">
-              {glossary.pipeline.stages.map((stage, i) => (
-                <span key={stage} style={{ display: "contents" }}>
-                  {i > 0 && <span className="arrow">→</span>}
-                  <span
-                    className={
-                      i === glossary.pipeline.stages.length - 1
-                        ? "stage final"
-                        : "stage"
-                    }
-                  >
-                    {stage}
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section" id="glossary">
-          <div className="wrap">
-            <span className="eyebrow">Memo from HR</span>
-            <h2>Approved terminology.</h2>
-            <p className="section-lede">
-              Effective immediately, the following language standards apply to
-              your personal life.
+              Public space is increasingly designed to be subtly uncomfortable. {glossary.brand.name}{" "}
+              grades every spot on how welcoming it actually is — from a flat bench you can lie down on
+              to a leaning rail engineered to move you along.
             </p>
             <table className="glossary-table">
               <thead>
                 <tr>
-                  <th scope="col">Common parlance</th>
-                  <th scope="col">Approved term</th>
+                  <th scope="col">Seat type</th>
+                  <th scope="col">How welcoming</th>
+                  <th scope="col">What it means</th>
                 </tr>
               </thead>
               <tbody>
-                {GLOSSARY_ROWS.map(([before, after]) => (
-                  <tr key={after}>
-                    <td>{before}</td>
-                    <td>{after}</td>
+                {SEAT_TYPES.map((s) => (
+                  <tr key={s}>
+                    <td>{glossary.seatTypes[s]}</td>
+                    <td>{hostilityLabel(HOSTILITY_RANK[s as SeatType])}</td>
+                    <td>{glossary.hostility.blurb[s]}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <div className="process-grid">
+              <div className="process-card">
+                <div className="process-step">Exposure</div>
+                <h3>{glossary.bench.sun}</h3>
+                <p>Baked in full sun all afternoon, or shaded by a canopy. We tag it.</p>
+              </div>
+              <div className="process-card">
+                <div className="process-step">Audio</div>
+                <h3>{glossary.bench.noise}</h3>
+                <p>Ten feet from four lanes of traffic, or a quiet brick courtyard.</p>
+              </div>
+              <div className="process-card">
+                <div className="process-step">Sightlines</div>
+                <h3>{glossary.bench.sightline}</h3>
+                <p>A blank wall, prime people-watching, or a sunset over the water.</p>
+              </div>
+              <div className="process-card">
+                <div className="process-step">Compass</div>
+                <h3>{glossary.tabs.compass}</h3>
+                <p>{glossary.compass.sub}</p>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="section" id="dignity">
-          <div className="wrap letter-wrap">
-            <div>
-              <span className="eyebrow">Compliance</span>
-              <h2>Ghosting is a policy violation.</h2>
-              <p className="section-lede">
-                On {glossary.brand.name}, nobody disappears. Every pass ships
-                with a {glossary.actions.rejectionLetter} — composed, signed,
-                and delivered to the candidate&rsquo;s inbox. Closure is a
-                benefit, and it&rsquo;s fully vested on day one.
-              </p>
-            </div>
-            <div className="letter">
-              <div className="letterhead">
-                <span className="lh-brand">{glossary.brand.name}</span>
-                <span className="lh-office">Office of the Hiring Committee</span>
-              </div>
-              <p>{glossary.rejectionLetterTemplate("Valued Candidate")}</p>
+        <section className="section" id="hoard">
+          <div className="wrap">
+            <span className="eyebrow">The hoard</span>
+            <h2>Build your private archive of the city.</h2>
+            <p className="section-lede">
+              Claim the spots you love and tag them for what they&rsquo;re good for — &ldquo;best place
+              to read at 3 PM,&rdquo; &ldquo;quiet spot to decompress.&rdquo; Add benches nobody&rsquo;s
+              mapped yet and earn discovery points and badges as your archive grows.
+            </p>
+            <div className="process-grid">
+              {BADGES.slice(0, 4).map((b) => (
+                <div className="process-card" key={b.key}>
+                  <div className="process-step">Badge</div>
+                  <h3>{b.label}</h3>
+                  <p>{b.description}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         <section className="section" id="pricing">
           <div className="wrap">
-            <span className="eyebrow">Compensation Philosophy</span>
-            <h2>Free tier means the whole product.</h2>
+            <span className="eyebrow">Pricing philosophy</span>
+            <h2>Finding a place to sit should be free.</h2>
             <p className="section-lede">
-              Company policy, non-negotiable: premium never gates features —
-              only volume. Every employee gets the full experience.
+              The whole map, the compass, and every bench&rsquo;s qualities are free and need no
+              account. Signing in just lets your hoard and your discovery points follow you across
+              devices.
             </p>
             <div className="pricing-card">
-              <div className="pricing-tag">{glossary.premium.paywallTitle}</div>
-              <h3>{glossary.premium.tierName}</h3>
+              <div className="pricing-tag">Free</div>
+              <h3>{glossary.brand.name}</h3>
               <ul>
-                <li>Unlimited daily screening capacity</li>
-                <li>
-                  {glossary.premium.boost} — {glossary.premium.boostSub.toLowerCase()}
-                </li>
-                <li>Your full {glossary.inbound.title} queue, unblurred</li>
+                <li>The full map of public benches near you</li>
+                <li>{glossary.tabs.compass} to the nearest place to sit</li>
+                <li>Hoard favorites, add benches, earn discovery points</li>
               </ul>
               <div className="policy-note">
-                Everything else — matching, chat, letters, the entire bit — is
-                free forever. Volume is the only thing money buys here.
+                No paywalls. The incentive to explore is the reward — points, badges, and a city you
+                know better than you did yesterday.
               </div>
             </div>
           </div>
@@ -253,11 +194,11 @@ export default function Home() {
 
         <section className="section" id="waitlist">
           <div className="wrap">
-            <span className="eyebrow">{glossary.referral.title}</span>
-            <h2>The position is open. Apply within.</h2>
+            <span className="eyebrow">Launching soon</span>
+            <h2>Get notified when your city is mapped.</h2>
             <p className="section-lede">
-              We&rsquo;re onboarding one metro at a time. Submit your interest
-              and we&rsquo;ll touch base when your cohort starts orientation.
+              We&rsquo;re seeding one area at a time from OpenStreetMap and the benches early hoarders
+              add. Leave your email and we&rsquo;ll let you know when yours is ready.
             </p>
             <WaitlistForm />
           </div>
@@ -267,15 +208,13 @@ export default function Home() {
       <footer className="footer">
         <div className="wrap footer-inner">
           <div>
-            <strong>{glossary.brand.name}</strong> —{" "}
-            {glossary.brand.tagline}
-            <div className="age-gate">
-              Strictly 18+. This office hires adults only.
-            </div>
+            <strong>{glossary.brand.name}</strong> — {glossary.brand.tagline}
+            <div className="age-gate">Built for everyone who just needs to sit down.</div>
           </div>
           <nav aria-label="Legal">
             <Link href="/privacy/">Privacy Policy</Link>
             <Link href="/terms/">Terms of Service</Link>
+            <Link href="/support/">Support</Link>
           </nav>
         </div>
       </footer>

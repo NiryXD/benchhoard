@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     color: LTB.ink,
     backgroundColor: LTB.paper,
   },
-  error: { color: LTB.reject, marginTop: 8 },
+  error: { color: LTB.danger, marginTop: 8 },
   button: {
     backgroundColor: LTB.primary,
     borderRadius: 6,

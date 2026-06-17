@@ -1,23 +1,27 @@
 {
   "expo": {
-    "name": "letstouchbase",
-    "slug": "letstouchbase",
+    "name": "Benchhoard",
+    "slug": "benchhoard",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ltb",
+    "scheme": "benchhoard",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Benchhoard uses your location to show benches near you and point you to the nearest one."
+      }
     },
     "android": {
-      "package": "com.letstouchbase.app",
+      "package": "com.benchhoard.app",
       "adaptiveIcon": {
-        "backgroundColor": "#0A66C2",
+        "backgroundColor": "#2F7D4F",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -29,14 +33,28 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0A66C2",
+          "backgroundColor": "#2F7D4F",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Benchhoard uses your location to show benches near you and point you to the nearest one."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#2F7D4F"
+        }
+      ],
+      "@sentry/react-native/expo"
     ],
     "experiments": {
       "typedRoutes": true,

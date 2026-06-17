@@ -1,18 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  DEGREE_LEVELS,
-  DEGREE_RANK,
-  DEPARTMENT_ARCHETYPES,
-  FAMILY_PLANS,
-  GENDERS,
-  HAS_KIDS,
-  INDUSTRIES,
-  LIFESTYLE_FREQUENCY,
-  OPEN_TO_WORK,
-  PHOTO_SLOTS,
-  PIPELINE_STAGES,
-  POLITICS,
+  AMENITIES,
+  BADGES,
+  DISCOVERY_POINTS,
+  HOSTILITY_RANK,
+  MATERIALS,
+  NOISE_LEVELS,
+  SEAT_TYPES,
+  SIGHTLINES,
+  SUN_EXPOSURE,
 } from "./taxonomies";
 
 const assertUnique = (name: string, values: readonly string[]) => {
@@ -24,41 +21,50 @@ const assertUnique = (name: string, values: readonly string[]) => {
 };
 
 test("taxonomy arrays contain no duplicates", () => {
-  assertUnique("INDUSTRIES", INDUSTRIES);
-  assertUnique("DEGREE_LEVELS", DEGREE_LEVELS);
-  assertUnique("DEPARTMENT_ARCHETYPES", DEPARTMENT_ARCHETYPES);
-  assertUnique("OPEN_TO_WORK", OPEN_TO_WORK);
-  assertUnique("GENDERS", GENDERS);
-  assertUnique("FAMILY_PLANS", FAMILY_PLANS);
-  assertUnique("HAS_KIDS", HAS_KIDS);
-  assertUnique("LIFESTYLE_FREQUENCY", LIFESTYLE_FREQUENCY);
-  assertUnique("POLITICS", POLITICS);
-  assertUnique("PIPELINE_STAGES", PIPELINE_STAGES);
+  assertUnique("SEAT_TYPES", SEAT_TYPES);
+  assertUnique("MATERIALS", MATERIALS);
+  assertUnique("SUN_EXPOSURE", SUN_EXPOSURE);
+  assertUnique("NOISE_LEVELS", NOISE_LEVELS);
+  assertUnique("SIGHTLINES", SIGHTLINES);
+  assertUnique("AMENITIES", AMENITIES);
+  assertUnique(
+    "BADGES keys",
+    BADGES.map((b) => b.key),
+  );
 });
 
-test("DEGREE_RANK covers every degree level with a non-negative tier", () => {
-  for (const level of DEGREE_LEVELS) {
-    const rank = DEGREE_RANK[level];
+test("HOSTILITY_RANK covers every seat type with a 0–4 tier", () => {
+  for (const seat of SEAT_TYPES) {
+    const rank = HOSTILITY_RANK[seat];
     assert.ok(
-      Number.isInteger(rank) && rank >= 0,
-      `DEGREE_RANK missing or invalid for "${level}"`,
+      Number.isInteger(rank) && rank >= 0 && rank <= 4,
+      `HOSTILITY_RANK missing or out of range for "${seat}"`,
     );
   }
-  // No stale entries for removed degree levels either.
-  assert.equal(Object.keys(DEGREE_RANK).length, DEGREE_LEVELS.length);
+  // No stale entries for removed seat types either.
+  assert.equal(Object.keys(HOSTILITY_RANK).length, SEAT_TYPES.length);
 });
 
-test("PHOTO_SLOTS has unique keys and exactly one required slot (the headshot)", () => {
-  assertUnique(
-    "PHOTO_SLOTS keys",
-    PHOTO_SLOTS.map((s) => s.key),
+test("a true bench is the most welcoming and a leaning rail the most hostile", () => {
+  assert.equal(HOSTILITY_RANK.true_bench, 0);
+  assert.equal(
+    HOSTILITY_RANK.leaning_rail,
+    Math.max(...SEAT_TYPES.map((s) => HOSTILITY_RANK[s])),
   );
-  const required = PHOTO_SLOTS.filter((s) => s.required);
-  assert.equal(required.length, 1);
-  assert.equal(required[0]!.key, "headshot");
 });
 
-test("pipeline starts at sourced and ends at offer_extended", () => {
-  assert.equal(PIPELINE_STAGES[0], "sourced");
-  assert.equal(PIPELINE_STAGES[PIPELINE_STAGES.length - 1], "offer_extended");
+test("every badge has a non-empty label and description", () => {
+  for (const badge of BADGES) {
+    assert.ok(badge.label.length > 0, `${badge.key} missing label`);
+    assert.ok(badge.description.length > 0, `${badge.key} missing description`);
+  }
+});
+
+test("every discovery-point award is a positive integer", () => {
+  for (const [kind, points] of Object.entries(DISCOVERY_POINTS)) {
+    assert.ok(
+      Number.isInteger(points) && points > 0,
+      `DISCOVERY_POINTS.${kind} must award positive points`,
+    );
+  }
 });

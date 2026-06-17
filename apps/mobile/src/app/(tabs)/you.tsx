@@ -1,157 +1,172 @@
 import { useAuth, useClerk } from '@clerk/clerk-expo';
-import { glossary } from '@ltb/shared';
-import { useQueryClient } from '@tanstack/react-query';
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  Share,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { BADGES, glossary } from '@ltb/shared';
+import { Link, router } from 'expo-router';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { LTB } from '@/constants/theme';
-import { ResumeCard } from '@/features/discovery/ResumeCard';
-import { useProfileCard } from '@/lib/discovery';
-import { useMyProfile } from '@/lib/profile';
-import {
-  useCreateReferenceInvite,
-  useDeleteReference,
-  useMyReferences,
-  useSetReferenceApproval,
-} from '@/lib/references';
+import { LTB, Spacing } from '@/constants/theme';
+import { useLeaderboard, useMyStats } from '@/lib/gamification';
 import { supabase } from '@/lib/supabase';
 
-const OTW_COLORS = {
-  committed: LTB.openToWork.committed,
-  casual: LTB.openToWork.casual,
-  networking: LTB.openToWork.networking,
-} as const;
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
 
-export default function YourResumeScreen() {
+export default function YouScreen() {
+  const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
-  const { userId } = useAuth();
-  const { data: profile } = useMyProfile();
-  const { data: card } = useProfileCard(userId ?? undefined);
-  const { data: references } = useMyReferences();
-  const createInvite = useCreateReferenceInvite();
-  const setApproval = useSetReferenceApproval();
-  const deleteReference = useDeleteReference();
-  const queryClient = useQueryClient();
+  const { data: stats } = useMyStats();
+  const { data: leaders } = useLeaderboard();
 
-  const toggleOutOfOffice = async (value: boolean) => {
-    await supabase.from('profiles').update({ out_of_office: value }).eq('user_id', userId!);
-    queryClient.invalidateQueries({ queryKey: ['my-profile'] });
-    queryClient.invalidateQueries({ queryKey: ['profile-card', userId] });
-  };
+  const earned = new Set(stats?.badges ?? []);
 
-  const requestReference = async () => {
-    try {
-      const link = await createInvite.mutateAsync();
-      await Share.share({
-        message: `I'm listing you as a reference. Write me one (takes 2 minutes, expires in 14 days): ${link}`,
-      });
-    } catch {
-      Alert.alert('Could not create the invite link. Try again.');
-    }
-  };
-
-  const tenderResignation = () => {
-    Alert.alert(
-      'Tender Your Resignation',
-      'This permanently deletes your account: resume, photos, matches, alignment calls — everything. There is no rehire process.',
-      [
-        { text: 'Stay employed', style: 'cancel' },
-        {
-          text: 'Continue',
-          style: 'destructive',
-          onPress: () =>
-            Alert.alert('Final confirmation', 'Sign and submit your resignation?', [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'Resign permanently',
-                style: 'destructive',
-                onPress: async () => {
-                  const { error } = await supabase.functions.invoke('delete-account');
-                  if (error) {
-                    Alert.alert('Deletion failed', 'Please try again.');
-                    return;
-                  }
-                  await signOut();
-                },
-              },
-            ]),
+  const onDelete = () =>
+    Alert.alert(glossary.you.deleteAccount, glossary.you.deleteConfirm, [
+      { text: glossary.common.cancel, style: 'cancel' },
+      {
+        text: glossary.you.deleteAccount,
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await supabase.functions.invoke('delete-account', { method: 'POST' });
+          } catch {
+            // best effort; the sign-out below still clears the local session
+          }
+          await signOut();
         },
-      ],
+      },
+    ]);
+
+  if (!isSignedIn) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.muted}>{glossary.you.signedOut}</Text>
+        <Link href="/(auth)/sign-in" style={styles.link}>
+          {glossary.auth.signInCta}
+        </Link>
+      </View>
     );
-  };
+  }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {profile ? (
-        <View style={styles.settingsCard}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingMeta}>
-              <Text style={styles.settingLabel}>{glossary.profile.outOfOffice}</Text>
-              <Text style={styles.settingHint}>
-                Auto-reply mode: you stay visible, expectations get managed.
-              </Text>
-            </View>
-            <Switch
-              value={profile.out_of_office}
-              onValueChange={toggleOutOfOffice}
-              trackColor={{ true: LTB.primary }}
-            />
-          </View>
-          <View style={styles.settingRow}>
-            <View style={styles.settingMeta}>
-              <Text style={styles.settingLabel}>{glossary.profile.openToWork}</Text>
-            </View>
-            <View
-              style={[styles.otwBadge, { backgroundColor: OTW_COLORS[profile.open_to_work] }]}>
-              <Text style={styles.otwText}>
-                {glossary.openToWorkStatuses[profile.open_to_work]}
-              </Text>
-            </View>
-          </View>
-        </View>
-      ) : null}
+    <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
+      <Text style={styles.points}>{stats?.points ?? 0}</Text>
+      <Text style={styles.pointsLabel}>{glossary.rewards.points}</Text>
 
-      {card ? (
-        <>
-          <Text style={styles.previewLabel}>
-            Your resume, as candidates see it (tap targets disabled):
-          </Text>
-          <ResumeCard card={card} onAnnotate={() => {}} />
-        </>
-      ) : null}
+      <View style={styles.statsRow}>
+        <Stat value={stats?.benchesAdded ?? 0} label={glossary.rewards.benchesAdded} />
+        <Stat value={stats?.benchesHoarded ?? 0} label={glossary.rewards.benchesHoarded} />
+        <Stat value={stats?.streak ?? 0} label={glossary.rewards.streak} />
+      </View>
 
-      <Pressable style={styles.signOut} onPress={() => signOut()}>
-        <Text style={styles.signOutText}>{glossary.auth.signOut}</Text>
+      <Text style={styles.sectionTitle}>{glossary.rewards.badges}</Text>
+      <View style={styles.badges}>
+        {BADGES.map((b) => {
+          const on = earned.has(b.key);
+          return (
+            <View key={b.key} style={[styles.badge, on ? styles.badgeOn : styles.badgeOff]}>
+              <Text style={[styles.badgeLabel, on ? styles.badgeLabelOn : null]}>{b.label}</Text>
+              <Text style={styles.badgeDesc}>{b.description}</Text>
+            </View>
+          );
+        })}
+      </View>
+
+      <Text style={styles.sectionTitle}>{glossary.rewards.leaderboard}</Text>
+      {(leaders ?? []).length === 0 ? (
+        <Text style={styles.muted}>{glossary.rewards.leaderboardEmpty}</Text>
+      ) : (
+        (leaders ?? []).map((row, i) => (
+          <View key={row.user_id} style={styles.leaderRow}>
+            <Text style={styles.leaderRank}>{i + 1}</Text>
+            <Text style={styles.leaderName}>{row.name}</Text>
+            <Text style={styles.leaderPoints}>{row.points}</Text>
+          </View>
+        ))
+      )}
+
+      <Text style={styles.sectionTitle}>{glossary.you.settings}</Text>
+      <Pressable style={styles.linkRow} onPress={() => router.push('/notifications')}>
+        <Text style={styles.linkRowText}>{glossary.you.notifications}</Text>
+      </Pressable>
+      <Pressable style={styles.linkRow} onPress={() => signOut()}>
+        <Text style={styles.linkRowText}>{glossary.auth.signOut}</Text>
+      </Pressable>
+      <Pressable style={styles.linkRow} onPress={onDelete}>
+        <Text style={[styles.linkRowText, styles.danger]}>{glossary.you.deleteAccount}</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 14 },
-  settingsCard: { backgroundColor: LTB.paper, borderRadius: 8, padding: 16, gap: 14 },
-  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  settingMeta: { flex: 1 },
-  settingLabel: { color: LTB.ink, fontWeight: '600' },
-  settingHint: { color: LTB.inkSecondary, fontSize: 12, marginTop: 2 },
-  otwBadge: { borderRadius: 999, paddingVertical: 6, paddingHorizontal: 12 },
-  otwText: { color: LTB.paper, fontSize: 12, fontWeight: '600' },
-  previewLabel: { color: LTB.inkSecondary, fontSize: 12 },
-  signOut: {
+  fill: { flex: 1, backgroundColor: LTB.feedGray },
+  content: { padding: Spacing.four, gap: Spacing.two, paddingBottom: Spacing.six },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.two,
+    padding: Spacing.four,
+    backgroundColor: LTB.feedGray,
+  },
+  muted: { color: LTB.inkSecondary, textAlign: 'center' },
+  link: { color: LTB.primary, fontWeight: '700', paddingVertical: Spacing.two },
+  points: { fontSize: 56, fontWeight: '900', color: LTB.primary, textAlign: 'center' },
+  pointsLabel: {
+    textAlign: 'center',
+    color: LTB.inkSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    fontSize: 12,
+  },
+  statsRow: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.three },
+  stat: {
+    flex: 1,
+    backgroundColor: LTB.paper,
+    borderRadius: 12,
+    padding: Spacing.three,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: LTB.divider,
-    borderRadius: 6,
-    padding: 12,
-    alignItems: 'center',
-    backgroundColor: LTB.paper,
   },
-  signOutText: { color: LTB.reject, fontWeight: '600' },
+  statValue: { fontSize: 24, fontWeight: '800', color: LTB.navy },
+  statLabel: { fontSize: 11, color: LTB.inkSecondary, textAlign: 'center' },
+  sectionTitle: {
+    marginTop: Spacing.four,
+    fontSize: 13,
+    fontWeight: '700',
+    color: LTB.inkSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  badges: { gap: Spacing.two },
+  badge: { borderRadius: 12, padding: Spacing.three, borderWidth: 1 },
+  badgeOn: { backgroundColor: LTB.paper, borderColor: LTB.accent },
+  badgeOff: { backgroundColor: LTB.feedGray, borderColor: LTB.divider, opacity: 0.6 },
+  badgeLabel: { fontWeight: '700', color: LTB.ink },
+  badgeLabelOn: { color: LTB.accent },
+  badgeDesc: { color: LTB.inkSecondary, fontSize: 12 },
+  leaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderBottomWidth: 1,
+    borderBottomColor: LTB.divider,
+  },
+  leaderRank: { width: 24, fontWeight: '800', color: LTB.inkSecondary },
+  leaderName: { flex: 1, color: LTB.ink },
+  leaderPoints: { fontWeight: '700', color: LTB.primary },
+  linkRow: {
+    paddingVertical: Spacing.three,
+    borderBottomWidth: 1,
+    borderBottomColor: LTB.divider,
+  },
+  linkRowText: { color: LTB.ink, fontSize: 16 },
+  danger: { color: LTB.danger },
 });

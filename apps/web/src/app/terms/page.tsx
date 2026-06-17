@@ -45,9 +45,8 @@ export default function TermsPage() {
       <ul>
         <li>One account per person; your profile must be about you.</li>
         <li>
-          Use real credentials — fabricated identity is grounds for
-          termination (the account kind, not the {glossary.actions.unmatch}{" "}
-          kind, although also that).
+          Don&rsquo;t impersonate others or create accounts to abuse the
+          discovery points system.
         </li>
         <li>You are responsible for activity under your account.</li>
       </ul>
@@ -78,11 +77,9 @@ export default function TermsPage() {
 
       <h2>6. Purchases</h2>
       <p>
-        Optional paid offerings ({glossary.premium.tierName} subscription and
-        consumables) are processed by Google Play. Prices are shown before
-        purchase; subscriptions renew until cancelled in your Play account.
-        Refunds follow Google Play&rsquo;s policy. Paid tiers increase volume
-        limits only — they never gate features.
+        {glossary.brand.name} is free to use. There are no subscriptions or
+        in-app purchases — the full map, compass, and bench details are available
+        to everyone at no cost.
       </p>
 
       <h2>7. Termination</h2>
