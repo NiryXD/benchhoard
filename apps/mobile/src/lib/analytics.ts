@@ -6,8 +6,8 @@ import { supabase } from './supabase';
 
 /**
  * Quarterly Performance Review — the caller's own funnel metrics. Computed
- * server-side by ltb_performance_review(), which scopes every clause to
- * ltb_uid(): a user can only ever read their own numbers.
+ * server-side by bh_performance_review(), which scopes every clause to
+ * bh_uid(): a user can only ever read their own numbers.
  */
 export type PerformanceReview = {
   impressions: number;
@@ -30,7 +30,7 @@ export function usePerformanceReview() {
     queryKey: ['performance-review', userId],
     enabled: !!userId,
     queryFn: async (): Promise<PerformanceReview> => {
-      const { data, error } = await supabase.rpc('ltb_performance_review');
+      const { data, error } = await supabase.rpc('bh_performance_review');
       if (error) throw error;
       return data as PerformanceReview;
     },

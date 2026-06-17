@@ -23,7 +23,7 @@ insert into benches (id, name, location, seat_type, verified, added_by) values
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"user_a","role":"authenticated"}', true);
 
-select is(ltb_uid(), 'user_a', 'ltb_uid() resolves the JWT sub');
+select is(bh_uid(), 'user_a', 'bh_uid() resolves the JWT sub');
 
 -- nearest benches: ordered by distance, bearing roughly east (~90°), bonus filtered
 select is(

@@ -1,6 +1,6 @@
 -- ─── [Opus 4.8] Benchhoard server logic as SECURITY DEFINER RPCs ─────────────
 -- Same discipline as the dating-era RPCs: the caller's identity always comes
--- from ltb_uid(), never from an argument, and point/badge awards are atomic
+-- from bh_uid(), never from an argument, and point/badge awards are atomic
 -- with the write that earns them. Point values mirror DISCOVERY_POINTS and the
 -- caps mirror LIMITS in packages/shared/src/taxonomies.ts.
 
@@ -11,7 +11,7 @@ create or replace function bh_ensure_profile(display_name text default null) ret
   language plpgsql security definer
   set search_path = public, extensions
   as $$
-declare me text := ltb_uid();
+declare me text := bh_uid();
 begin
   if me is null then raise exception 'unauthenticated'; end if;
   insert into profiles (user_id, display_name)
@@ -51,7 +51,7 @@ create or replace function bh_nearest_benches(
       st_x(b.location::geometry) as lng,
       st_y(b.location::geometry) as lat
     from benches b cross join origin o
-    where (b.verified or b.added_by = ltb_uid())
+    where (b.verified or b.added_by = bh_uid())
       and st_dwithin(o.g, b.location, radius_km * 1000)
     order by st_distance(o.g, b.location)
     limit lim
@@ -122,7 +122,7 @@ create or replace function bh_add_bench(
   set search_path = public, extensions
   as $$
 declare
-  me        text := ltb_uid();
+  me        text := bh_uid();
   new_id    uuid;
   today_cnt int;
   pts       int := 25;   -- DISCOVERY_POINTS.addBench
@@ -162,7 +162,7 @@ create or replace function bh_toggle_hoard(in_bench uuid, in_label text default 
   set search_path = public, extensions
   as $$
 declare
-  me      text := ltb_uid();
+  me      text := bh_uid();
   hoarded boolean;
   pts     int := 0;       -- DISCOVERY_POINTS.hoardBench on first claim
   newly   text[] := '{}';
@@ -200,7 +200,7 @@ create or replace function bh_review_bench(in_bench uuid, in_comfort int, in_not
   set search_path = public, extensions
   as $$
 declare
-  me    text := ltb_uid();
+  me    text := bh_uid();
   pts   int := 0;        -- DISCOVERY_POINTS.reviewBench, first review only
   newly text[] := '{}';
 begin
@@ -235,7 +235,7 @@ create or replace function bh_record_visit(in_bench uuid) returns jsonb
   set search_path = public, extensions
   as $$
 declare
-  me    text := ltb_uid();
+  me    text := bh_uid();
   pts   int := 0;        -- DISCOVERY_POINTS.firstVisit
   newly text[] := '{}';
 begin
@@ -290,12 +290,12 @@ create or replace function bh_my_stats() returns jsonb
   set search_path = public, extensions
   as $$
     select jsonb_build_object(
-      'points', coalesce((select sum(points) from discoveries where user_id = ltb_uid()), 0),
-      'benchesAdded', (select count(*) from benches where added_by = ltb_uid()),
-      'benchesHoarded', (select count(*) from hoards where user_id = ltb_uid()),
-      'streak', bh_streak(ltb_uid()),
+      'points', coalesce((select sum(points) from discoveries where user_id = bh_uid()), 0),
+      'benchesAdded', (select count(*) from benches where added_by = bh_uid()),
+      'benchesHoarded', (select count(*) from hoards where user_id = bh_uid()),
+      'streak', bh_streak(bh_uid()),
       'badges', coalesce(
-        (select jsonb_agg(badge order by earned_at) from badges_earned where user_id = ltb_uid()),
+        (select jsonb_agg(badge order by earned_at) from badges_earned where user_id = bh_uid()),
         '[]'::jsonb)
     )
   $$;

@@ -9,7 +9,7 @@ import {
   type Sightline,
   SUN_EXPOSURE,
   type SunExposure,
-} from '@ltb/shared';
+} from '@benchhoard/shared';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -23,7 +23,7 @@ import {
   View,
 } from 'react-native';
 
-import { LTB, Spacing } from '@/constants/theme';
+import { BH, Spacing } from '@/constants/theme';
 import { useAddBench } from '@/lib/benches';
 import { useDeviceLocation } from '@/lib/location';
 
@@ -137,7 +137,7 @@ export default function AddBenchScreen() {
           value={name}
           onChangeText={setName}
           placeholder={glossary.addBench.namePlaceholder}
-          placeholderTextColor={LTB.inkSecondary}
+          placeholderTextColor={BH.inkSecondary}
           maxLength={80}
         />
 
@@ -147,7 +147,7 @@ export default function AddBenchScreen() {
           value={notes}
           onChangeText={setNotes}
           placeholder={glossary.addBench.notesPlaceholder}
-          placeholderTextColor={LTB.inkSecondary}
+          placeholderTextColor={BH.inkSecondary}
           multiline
           maxLength={280}
         />
@@ -157,7 +157,7 @@ export default function AddBenchScreen() {
           onPress={onSubmit}
           disabled={addBench.isPending}>
           {addBench.isPending ? (
-            <ActivityIndicator color={LTB.paper} />
+            <ActivityIndicator color={BH.paper} />
           ) : (
             <Text style={styles.submitText}>{glossary.addBench.submit}</Text>
           )}
@@ -168,43 +168,43 @@ export default function AddBenchScreen() {
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, backgroundColor: LTB.feedGray },
+  fill: { flex: 1, backgroundColor: BH.feedGray },
   content: { padding: Spacing.four, gap: Spacing.two, paddingBottom: Spacing.six },
-  sub: { color: LTB.inkSecondary },
-  location: { color: LTB.primary, fontWeight: '600' },
+  sub: { color: BH.inkSecondary },
+  location: { color: BH.primary, fontWeight: '600' },
   label: {
     marginTop: Spacing.three,
     fontWeight: '700',
-    color: LTB.ink,
+    color: BH.ink,
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
   chip: {
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     borderRadius: 999,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one + 2,
   },
-  chipOn: { backgroundColor: LTB.primary, borderColor: LTB.primary },
-  chipText: { color: LTB.ink },
-  chipTextOn: { color: LTB.paper, fontWeight: '700' },
+  chipOn: { backgroundColor: BH.primary, borderColor: BH.primary },
+  chipText: { color: BH.ink },
+  chipTextOn: { color: BH.paper, fontWeight: '700' },
   input: {
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     borderRadius: 10,
     padding: Spacing.three,
-    color: LTB.ink,
+    color: BH.ink,
   },
   multiline: { minHeight: 88, textAlignVertical: 'top' },
   submit: {
     marginTop: Spacing.four,
-    backgroundColor: LTB.primary,
+    backgroundColor: BH.primary,
     borderRadius: 12,
     paddingVertical: Spacing.three,
     alignItems: 'center',
   },
   submitDisabled: { opacity: 0.6 },
-  submitText: { color: LTB.paper, fontWeight: '800', fontSize: 16 },
+  submitText: { color: BH.paper, fontWeight: '800', fontSize: 16 },
 });

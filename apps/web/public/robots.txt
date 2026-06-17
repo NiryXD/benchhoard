@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /reference/
 
-Sitemap: https://letstouchbase.pages.dev/sitemap.xml
+Sitemap: https://benchhoard.pages.dev/sitemap.xml

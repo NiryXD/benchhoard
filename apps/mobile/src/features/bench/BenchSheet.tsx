@@ -1,8 +1,8 @@
 // ─── [Opus 4.8] Benchhoard — bench detail sheet (qualities + reviews + hoard) ─
-import { glossary, HOSTILITY_RANK, type Amenity, type SeatType } from '@ltb/shared';
+import { glossary, HOSTILITY_RANK, type Amenity, type SeatType } from '@benchhoard/shared';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { hostilityColor, LTB, Spacing } from '@/constants/theme';
+import { hostilityColor, BH, Spacing } from '@/constants/theme';
 import { useRequireAuth } from '@/lib/auth';
 import { useBenchDetail, type NearbyBench } from '@/lib/benches';
 import { useIsHoarded, useToggleHoard } from '@/lib/hoard';
@@ -101,27 +101,27 @@ const styles = StyleSheet.create({
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-end' },
   dismissArea: { flex: 1 },
   sheet: {
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '70%',
   },
   content: { padding: Spacing.four, gap: Spacing.two },
-  title: { fontSize: 22, fontWeight: '800', color: LTB.ink },
-  unverified: { color: LTB.danger, fontSize: 12 },
+  title: { fontSize: 22, fontWeight: '800', color: BH.ink },
+  unverified: { color: BH.danger, fontSize: 12 },
   sectionTitle: {
     marginTop: Spacing.two,
     fontSize: 13,
     fontWeight: '700',
-    color: LTB.inkSecondary,
+    color: BH.inkSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rowLabel: { color: LTB.inkSecondary },
-  rowValue: { color: LTB.ink, fontWeight: '600' },
+  rowLabel: { color: BH.inkSecondary },
+  rowValue: { color: BH.ink, fontWeight: '600' },
   badge: {
-    color: LTB.paper,
+    color: BH.paper,
     fontWeight: '700',
     fontSize: 12,
     paddingHorizontal: Spacing.two,
@@ -131,24 +131,24 @@ const styles = StyleSheet.create({
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one, marginTop: Spacing.one },
   chip: {
-    backgroundColor: LTB.feedGray,
-    color: LTB.ink,
+    backgroundColor: BH.feedGray,
+    color: BH.ink,
     borderRadius: 8,
     paddingHorizontal: Spacing.two,
     paddingVertical: 4,
     fontSize: 12,
   },
   review: { marginTop: Spacing.one },
-  reviewStars: { color: LTB.accent },
-  reviewNote: { color: LTB.ink },
+  reviewStars: { color: BH.accent },
+  reviewNote: { color: BH.ink },
   hoardBtn: {
     marginTop: Spacing.three,
-    backgroundColor: LTB.primary,
+    backgroundColor: BH.primary,
     borderRadius: 12,
     paddingVertical: Spacing.three,
     alignItems: 'center',
   },
-  hoardBtnOn: { backgroundColor: LTB.feedGray, borderWidth: 1, borderColor: LTB.primary },
-  hoardText: { color: LTB.paper, fontWeight: '800', fontSize: 16 },
-  hoardTextOn: { color: LTB.primary },
+  hoardBtnOn: { backgroundColor: BH.feedGray, borderWidth: 1, borderColor: BH.primary },
+  hoardText: { color: BH.paper, fontWeight: '800', fontSize: 16 },
+  hoardTextOn: { color: BH.primary },
 });

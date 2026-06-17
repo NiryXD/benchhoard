@@ -1,9 +1,9 @@
 // ─── [Opus 4.8] Benchhoard — notification settings (push + quiet hours) ─────
-import { glossary } from '@ltb/shared';
+import { glossary } from '@benchhoard/shared';
 import { Stack } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { LTB, Spacing } from '@/constants/theme';
+import { BH, Spacing } from '@/constants/theme';
 import { useNotificationPrefs, useUpdateNotificationPrefs } from '@/lib/notification-prefs';
 
 const N = glossary.notifications;
@@ -42,7 +42,7 @@ export default function NotificationsScreen() {
           <Switch
             value={pushEnabled}
             onValueChange={(v) => update.mutate({ pushEnabled: v })}
-            trackColor={{ true: LTB.primary, false: LTB.divider }}
+            trackColor={{ true: BH.primary, false: BH.divider }}
           />
         </View>
 
@@ -55,7 +55,7 @@ export default function NotificationsScreen() {
             onValueChange={(v) =>
               update.mutate(v ? { quietStart: 22, quietEnd: 7 } : { quietStart: null, quietEnd: null })
             }
-            trackColor={{ true: LTB.primary, false: LTB.divider }}
+            trackColor={{ true: BH.primary, false: BH.divider }}
           />
         </View>
 
@@ -89,14 +89,14 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1, backgroundColor: LTB.feedGray },
+  fill: { flex: 1, backgroundColor: BH.feedGray },
   content: { padding: Spacing.four, gap: Spacing.two, paddingBottom: Spacing.six },
-  sub: { color: LTB.inkSecondary },
+  sub: { color: BH.inkSecondary },
   sectionTitle: {
     marginTop: Spacing.four,
     fontSize: 13,
     fontWeight: '700',
-    color: LTB.inkSecondary,
+    color: BH.inkSecondary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -104,36 +104,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderRadius: 12,
     padding: Spacing.three,
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     marginTop: Spacing.two,
   },
   rowText: { flex: 1, paddingRight: Spacing.three },
-  rowTitle: { fontWeight: '700', color: LTB.ink },
-  rowSub: { color: LTB.inkSecondary, fontSize: 12 },
+  rowTitle: { fontWeight: '700', color: BH.ink },
+  rowSub: { color: BH.inkSecondary, fontSize: 12 },
   quietControls: { flexDirection: 'row', gap: Spacing.three, marginTop: Spacing.two },
   stepper: {
     flex: 1,
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderRadius: 12,
     padding: Spacing.three,
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     alignItems: 'center',
     gap: Spacing.two,
   },
-  stepperLabel: { color: LTB.inkSecondary, fontSize: 12, textTransform: 'uppercase' },
+  stepperLabel: { color: BH.inkSecondary, fontSize: 12, textTransform: 'uppercase' },
   stepBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: LTB.feedGray,
+    backgroundColor: BH.feedGray,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepBtnText: { fontSize: 20, color: LTB.primary, fontWeight: '700' },
-  stepValue: { fontSize: 18, fontWeight: '800', color: LTB.navy },
+  stepBtnText: { fontSize: 20, color: BH.primary, fontWeight: '700' },
+  stepValue: { fontSize: 18, fontWeight: '800', color: BH.navy },
 });

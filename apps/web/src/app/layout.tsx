@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Libre_Franklin } from "next/font/google";
-import { glossary } from "@ltb/shared";
+import { glossary } from "@benchhoard/shared";
 import "./globals.css";
 
 // Franklin Gothic's open-source descendant — the most corporate-Americana
@@ -11,10 +11,10 @@ const franklin = Libre_Franklin({
 });
 
 const description =
-  "A dating app that runs like a hiring process: structured screens, formal offers, and rejection letters with dignity. Strictly 18+.";
+  "Find the public benches near you, see what each one is actually like — flat or boxed-in, sun or shade, quiet or loud — and let a compass point you to the nearest place to sit down.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://letstouchbase.pages.dev"),
+  metadataBase: new URL("https://benchhoard.pages.dev"),
   title: `${glossary.brand.name} — ${glossary.brand.tagline}`,
   description,
   openGraph: {

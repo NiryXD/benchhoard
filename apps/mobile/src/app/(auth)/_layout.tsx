@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-expo';
 import { Redirect, Stack } from 'expo-router';
 
-import { LTB } from '@/constants/theme';
+import { BH } from '@/constants/theme';
 
 export default function AuthLayout() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -12,7 +12,7 @@ export default function AuthLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: LTB.feedGray },
+        contentStyle: { backgroundColor: BH.feedGray },
       }}
     />
   );

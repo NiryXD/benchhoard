@@ -55,7 +55,7 @@ export function osmTagsToBench(tags: OsmTags): MappedBench {
   };
 }
 
-/** Discovery-point award per action. Mirrors DISCOVERY_POINTS in @ltb/shared. */
+/** Discovery-point award per action. Mirrors DISCOVERY_POINTS in @benchhoard/shared. */
 export const DISCOVERY_POINTS: Record<string, number> = {
   added: 25,
   reviewed: 10,

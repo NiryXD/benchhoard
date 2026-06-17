@@ -2,7 +2,7 @@
 -- within ~12km of the most recently active real user's location, so the
 -- discovery deck has candidates during testing. Service-role only.
 
-create or replace function ltb_dev_scatter_seeds() returns int
+create or replace function bh_dev_scatter_seeds() returns int
   language plpgsql security definer
   set search_path = public, extensions
   as $$
@@ -30,5 +30,5 @@ begin
 end;
 $$;
 
-revoke execute on function ltb_dev_scatter_seeds() from public, anon, authenticated;
-grant execute on function ltb_dev_scatter_seeds() to service_role;
+revoke execute on function bh_dev_scatter_seeds() from public, anon, authenticated;
+grant execute on function bh_dev_scatter_seeds() to service_role;

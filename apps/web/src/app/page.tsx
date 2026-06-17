@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BADGES, glossary, HOSTILITY_RANK, SEAT_TYPES, type SeatType } from "@ltb/shared";
+import { BADGES, glossary, HOSTILITY_RANK, SEAT_TYPES, type SeatType } from "@benchhoard/shared";
 import { WaitlistForm } from "@/components/WaitlistForm";
 
 // [Opus 4.8] Benchhoard landing — a quiet field guide to public seating.

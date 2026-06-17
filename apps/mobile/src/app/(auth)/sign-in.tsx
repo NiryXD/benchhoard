@@ -1,5 +1,5 @@
 import { useSignIn } from '@clerk/clerk-expo';
-import { glossary } from '@ltb/shared';
+import { glossary } from '@benchhoard/shared';
 import { Link } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -13,7 +13,7 @@ import {
   View,
 } from 'react-native';
 
-import { LTB } from '@/constants/theme';
+import { BH } from '@/constants/theme';
 
 function clerkErrorMessage(err: unknown): string {
   const e = err as { errors?: { message?: string }[] };
@@ -77,7 +77,7 @@ export default function SignInScreen() {
 
         <Pressable style={[styles.button, busy && styles.buttonDisabled]} onPress={onSignIn}>
           {busy ? (
-            <ActivityIndicator color={LTB.paper} />
+            <ActivityIndicator color={BH.paper} />
           ) : (
             <Text style={styles.buttonText}>{glossary.auth.signInCta}</Text>
           )}
@@ -93,28 +93,28 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20 },
-  card: { backgroundColor: LTB.paper, borderRadius: 8, padding: 24, gap: 6 },
-  brand: { color: LTB.primary, fontWeight: '800', fontSize: 18 },
-  title: { color: LTB.navy, fontWeight: '700', fontSize: 26, marginTop: 8 },
-  sub: { color: LTB.inkSecondary, marginBottom: 12 },
-  label: { color: LTB.ink, fontWeight: '600', fontSize: 13, marginTop: 8 },
+  card: { backgroundColor: BH.paper, borderRadius: 8, padding: 24, gap: 6 },
+  brand: { color: BH.primary, fontWeight: '800', fontSize: 18 },
+  title: { color: BH.navy, fontWeight: '700', fontSize: 26, marginTop: 8 },
+  sub: { color: BH.inkSecondary, marginBottom: 12 },
+  label: { color: BH.ink, fontWeight: '600', fontSize: 13, marginTop: 8 },
   input: {
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     borderRadius: 6,
     padding: 12,
-    color: LTB.ink,
-    backgroundColor: LTB.paper,
+    color: BH.ink,
+    backgroundColor: BH.paper,
   },
-  error: { color: LTB.danger, marginTop: 8 },
+  error: { color: BH.danger, marginTop: 8 },
   button: {
-    backgroundColor: LTB.primary,
+    backgroundColor: BH.primary,
     borderRadius: 6,
     padding: 14,
     alignItems: 'center',
     marginTop: 16,
   },
   buttonDisabled: { opacity: 0.7 },
-  buttonText: { color: LTB.paper, fontWeight: '700', fontSize: 16 },
-  switchLink: { color: LTB.primary, marginTop: 16, textAlign: 'center' },
+  buttonText: { color: BH.paper, fontWeight: '700', fontSize: 16 },
+  switchLink: { color: BH.primary, marginTop: 16, textAlign: 'center' },
 });

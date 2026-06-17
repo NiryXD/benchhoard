@@ -1,9 +1,8 @@
-# apps/web — letstouchbase marketing site
+# apps/web — benchhoard marketing site
 
-Next.js static export. Landing page (waitlist + Employee Referral Bonus
-framing), `/reference` (the public reference form — invite links from the
-app land here), `/privacy`, and `/terms` (store-required for Play
-submission).
+Next.js static export. Landing page (the Hostility Index, hoarding, and a
+"get notified" waitlist), `/privacy`, `/support`, and `/terms`
+(store-required for app-store submission).
 
 ## Dev
 
@@ -17,7 +16,7 @@ npm run dev --workspace web        # http://localhost:3000
 npm run build --workspace web      # output: apps/web/out
 ```
 
-No server runtime — everything is prerendered. `@ltb/shared` is consumed as
+No server runtime — everything is prerendered. `@benchhoard/shared` is consumed as
 TypeScript source via `transpilePackages`.
 
 ## Deploy — Cloudflare Pages (free tier)
@@ -29,20 +28,17 @@ Connect the GitHub repo in the Cloudflare dashboard:
 - **Root directory:** repo root (npm workspaces need the root lockfile)
 - **Environment variable:** `NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL` →
   `https://<project-ref>.supabase.co/functions/v1`
-  (inlined at build time; without it both forms fail gracefully)
+  (inlined at build time; without it the waitlist form fails gracefully)
 
-Site serves at `letstouchbase.pages.dev`; attach `letstouchbase.com` later
+Site serves at `benchhoard.pages.dev`; attach `benchhoard.com` later
 when the domain is purchased.
 
 ## TODOs before launch
 
-- Backend exists for both forms (doc 08 §6 + §8) but needs deploying:
+- Backend for the waitlist form exists but needs deploying:
   `supabase db push` then
-  `supabase functions deploy join-waitlist --no-verify-jwt` and
-  `supabase functions deploy submit-reference --no-verify-jwt`,
+  `supabase functions deploy join-waitlist --no-verify-jwt`,
   and set `NEXT_PUBLIC_SUPABASE_FUNCTIONS_URL` in the Pages build env.
-- Reference invite links (`/reference/?token=…`) are minted in-app — the
-  mobile "request a reference" UI is a Phase 4 item.
-- Legal: `/privacy` and `/terms` are working drafts — run through Termly
-  (free tier) / legal review and fill the `[BRACKETED]` placeholders
-  (support email, jurisdiction).
+- Legal: `/privacy` and `/terms` are working drafts — run through a
+  generator (e.g. Termly) / legal review and fill the `[BRACKETED]`
+  placeholders (support email, jurisdiction).

@@ -1,14 +1,14 @@
 -- Add approved reference letters to the profile card payload so they render
 -- on the Resume ("References available upon request" — except we show them).
 
-create or replace function ltb_profile_card(uid text) returns jsonb
+create or replace function bh_profile_card(uid text) returns jsonb
   language sql stable security definer
   set search_path = public, extensions
   as $$
     select jsonb_build_object(
       'userId', p.user_id,
       'firstName', p.first_name,
-      'age', ltb_age(p.birthdate),
+      'age', bh_age(p.birthdate),
       'headline', p.headline,
       'executiveSummary', p.executive_summary,
       'currentTitle', p.current_title,

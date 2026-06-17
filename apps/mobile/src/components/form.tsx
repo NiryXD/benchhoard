@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 
-import { LTB } from '@/constants/theme';
+import { BH } from '@/constants/theme';
 
 export function StepScreen({
   title,
@@ -44,7 +44,7 @@ export function StepScreen({
           disabled={ctaDisabled || busy}
           onPress={onNext}>
           {busy ? (
-            <ActivityIndicator color={LTB.paper} />
+            <ActivityIndicator color={BH.paper} />
           ) : (
             <Text style={styles.ctaText}>{ctaLabel}</Text>
           )}
@@ -64,7 +64,7 @@ export function Field({
       <Text style={styles.label}>{label}</Text>
       <TextInput
         style={[styles.input, inputProps.multiline && styles.inputMultiline]}
-        placeholderTextColor={LTB.inkSecondary}
+        placeholderTextColor={BH.inkSecondary}
         {...inputProps}
       />
       {hint ? <Text style={styles.hint}>{hint}</Text> : null}
@@ -109,40 +109,40 @@ export function Chips<T extends string>({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   scroll: { padding: 20, paddingBottom: 40 },
-  title: { color: LTB.navy, fontWeight: '700', fontSize: 24 },
-  subtitle: { color: LTB.inkSecondary, marginTop: 4 },
+  title: { color: BH.navy, fontWeight: '700', fontSize: 24 },
+  subtitle: { color: BH.inkSecondary, marginTop: 4 },
   body: { marginTop: 16, gap: 4 },
   field: { marginBottom: 14 },
-  label: { color: LTB.ink, fontWeight: '600', fontSize: 13, marginBottom: 6 },
+  label: { color: BH.ink, fontWeight: '600', fontSize: 13, marginBottom: 6 },
   input: {
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     borderRadius: 6,
     padding: 12,
-    color: LTB.ink,
-    backgroundColor: LTB.paper,
+    color: BH.ink,
+    backgroundColor: BH.paper,
   },
   inputMultiline: { minHeight: 90, textAlignVertical: 'top' },
-  hint: { color: LTB.inkSecondary, fontSize: 12, marginTop: 4 },
+  hint: { color: BH.inkSecondary, fontSize: 12, marginTop: 4 },
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
     borderRadius: 999,
     paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
   },
-  chipOn: { backgroundColor: LTB.primary, borderColor: LTB.primary },
-  chipText: { color: LTB.ink, fontSize: 13 },
-  chipTextOn: { color: LTB.paper, fontWeight: '600' },
+  chipOn: { backgroundColor: BH.primary, borderColor: BH.primary },
+  chipText: { color: BH.ink, fontSize: 13 },
+  chipTextOn: { color: BH.paper, fontWeight: '600' },
   cta: {
-    backgroundColor: LTB.primary,
+    backgroundColor: BH.primary,
     borderRadius: 6,
     padding: 14,
     alignItems: 'center',
     marginTop: 12,
   },
   ctaDisabled: { opacity: 0.5 },
-  ctaText: { color: LTB.paper, fontWeight: '700', fontSize: 16 },
+  ctaText: { color: BH.paper, fontWeight: '700', fontSize: 16 },
 });

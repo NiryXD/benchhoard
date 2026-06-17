@@ -1,8 +1,8 @@
--- ltb_nightly's full-table UPDATE breaks under pg_safeupdate when invoked
+-- bh_nightly's full-table UPDATE breaks under pg_safeupdate when invoked
 -- through the API (PostgREST sessions require a WHERE clause). Add `where
 -- true` so it works from both pg_cron and service-role RPC calls.
 
-create or replace function ltb_nightly() returns void
+create or replace function bh_nightly() returns void
   language plpgsql security definer
   as $$
 begin

@@ -64,19 +64,18 @@ export function WaitlistForm() {
     return (
       <div className="form-card">
         <div className="form-card-head">
-          <strong>Application Received</strong>
-          <span className="form-no">Form LTB‑001 · Filed</span>
+          <strong>You&rsquo;re on the list</strong>
+          <span className="form-no">Confirmed</span>
         </div>
         <div className="form-card-body">
           <p className="form-result-lede">
             {result.alreadyOnList
-              ? "You're already in the system — HR appreciates the follow-up."
-              : "Welcome to the candidate pool."}{" "}
-            You are <strong>#{result.position}</strong> in the queue.
+              ? "You're already on the list — thanks for checking back."
+              : "Thanks! We'll let you know when your area is mapped."}{" "}
+            You are <strong>#{result.position}</strong> in line.
           </p>
           <p className="form-hint">
-            Employee Referral Bonus: every colleague who joins through your
-            link moves you up.
+            Share your link: everyone who joins through it moves you up.
           </p>
           <div className="ref-row">
             <code className="ref-chip">/?ref={result.referralCode}</code>
@@ -96,8 +95,8 @@ export function WaitlistForm() {
   return (
     <form className="form-card" onSubmit={onSubmit} noValidate>
       <div className="form-card-head">
-        <strong>Request for Early Access</strong>
-        <span className="form-no">Form LTB‑001 · Rev. A</span>
+        <strong>Get notified at launch</strong>
+        <span className="form-no">Early access</span>
       </div>
       <div className="form-card-body">
         <div className="form-row">
@@ -105,7 +104,7 @@ export function WaitlistForm() {
             type="email"
             name="email"
             required
-            placeholder="Work-appropriate email address"
+            placeholder="Your email address"
             aria-label="Email address"
             value={email}
             onChange={(e) => {
@@ -118,18 +117,17 @@ export function WaitlistForm() {
             className="btn btn-primary"
             disabled={!EMAIL_RE.test(email) || status === "submitting"}
           >
-            {status === "submitting" ? "Routing for approval…" : "Submit for Consideration"}
+            {status === "submitting" ? "Adding you…" : "Notify me"}
           </button>
         </div>
         <p className="form-hint">
           {ref
-            ? "You were referred by a colleague — you both move up the list."
-            : "Employee Referral Bonus in effect: refer a colleague and you both move up the list. Hiring is who you know."}
+            ? "You were referred by a friend — you both move up the list."
+            : "Share your link after signing up and you both move up the list."}
         </p>
         {status === "err" && (
           <p className="form-status err" role="status">
-            We&rsquo;ll circle back. Your enthusiasm has been noted in your
-            permanent file.
+            Something went wrong. Please try again.
           </p>
         )}
       </div>

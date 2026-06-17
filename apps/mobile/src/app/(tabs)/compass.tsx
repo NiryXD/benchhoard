@@ -1,7 +1,7 @@
-import { glossary, type SeatType } from '@ltb/shared';
+import { glossary, type SeatType } from '@benchhoard/shared';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { LTB, Spacing } from '@/constants/theme';
+import { BH, Spacing } from '@/constants/theme';
 import { useNearbyBenches } from '@/lib/benches';
 import { useDeviceLocation, useHeading } from '@/lib/location';
 
@@ -14,7 +14,7 @@ export default function CompassScreen() {
   if (status === 'loading') {
     return (
       <View style={styles.container}>
-        <ActivityIndicator color={LTB.primary} />
+        <ActivityIndicator color={BH.primary} />
       </View>
     );
   }
@@ -61,21 +61,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.four,
     padding: Spacing.four,
-    backgroundColor: LTB.feedGray,
+    backgroundColor: BH.feedGray,
   },
-  benchName: { fontSize: 20, fontWeight: '700', color: LTB.ink, textAlign: 'center' },
+  benchName: { fontSize: 20, fontWeight: '700', color: BH.ink, textAlign: 'center' },
   dial: {
     width: 240,
     height: 240,
     borderRadius: 120,
     borderWidth: 2,
-    borderColor: LTB.divider,
-    backgroundColor: LTB.paper,
+    borderColor: BH.divider,
+    backgroundColor: BH.paper,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrow: { fontSize: 120, lineHeight: 132, color: LTB.primary },
-  distance: { fontSize: 28, fontWeight: '800', color: LTB.navy },
-  hint: { color: LTB.inkSecondary, textAlign: 'center' },
-  muted: { color: LTB.inkSecondary, textAlign: 'center' },
+  arrow: { fontSize: 120, lineHeight: 132, color: BH.primary },
+  distance: { fontSize: 28, fontWeight: '800', color: BH.navy },
+  hint: { color: BH.inkSecondary, textAlign: 'center' },
+  muted: { color: BH.inkSecondary, textAlign: 'center' },
 });

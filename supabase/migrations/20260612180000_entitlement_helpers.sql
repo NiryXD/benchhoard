@@ -6,7 +6,7 @@
 -- before any other entitlements write. A missing profile (user deleted
 -- between purchase and webhook) is a no-op, not an error — RevenueCat
 -- retries on 5xx and we don't want a poison event.
-create or replace function ltb_apply_executive(p_user text, p_active boolean)
+create or replace function bh_apply_executive(p_user text, p_active boolean)
 returns void
 language plpgsql
 security definer
@@ -20,12 +20,12 @@ begin
         updated_at   = now();
 exception
   when foreign_key_violation then
-    raise notice 'ltb_apply_executive: no profile for %, skipping', p_user;
+    raise notice 'bh_apply_executive: no profile for %, skipping', p_user;
 end;
 $$;
 
 -- Atomically grant consumable credits (Headhunt / Expedited Review boosts).
-create or replace function ltb_grant_credits(p_user text, p_headhunt int, p_boost int)
+create or replace function bh_grant_credits(p_user text, p_headhunt int, p_boost int)
 returns void
 language plpgsql
 security definer
@@ -40,9 +40,9 @@ begin
         updated_at       = now();
 exception
   when foreign_key_violation then
-    raise notice 'ltb_grant_credits: no profile for %, skipping', p_user;
+    raise notice 'bh_grant_credits: no profile for %, skipping', p_user;
 end;
 $$;
 
-revoke execute on function ltb_apply_executive(text, boolean) from public, anon, authenticated;
-revoke execute on function ltb_grant_credits(text, int, int) from public, anon, authenticated;
+revoke execute on function bh_apply_executive(text, boolean) from public, anon, authenticated;
+revoke execute on function bh_grant_credits(text, int, int) from public, anon, authenticated;

@@ -1,8 +1,8 @@
-import { glossary } from '@ltb/shared';
+import { glossary } from '@benchhoard/shared';
 import { Tabs } from 'expo-router';
 import { Text } from 'react-native';
 
-import { LTB } from '@/constants/theme';
+import { BH } from '@/constants/theme';
 
 // [Opus 4.8] Anonymous-first: anyone can browse the map, compass, and a bench's
 // qualities without an account. Sign-in is only prompted on write actions
@@ -15,13 +15,13 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: LTB.paper },
-        headerTitleStyle: { color: LTB.navy, fontWeight: '700' },
+        headerStyle: { backgroundColor: BH.paper },
+        headerTitleStyle: { color: BH.navy, fontWeight: '700' },
         headerShadowVisible: true,
-        tabBarActiveTintColor: LTB.primary,
-        tabBarInactiveTintColor: LTB.inkSecondary,
-        tabBarStyle: { backgroundColor: LTB.paper },
-        sceneStyle: { backgroundColor: LTB.feedGray },
+        tabBarActiveTintColor: BH.primary,
+        tabBarInactiveTintColor: BH.inkSecondary,
+        tabBarStyle: { backgroundColor: BH.paper },
+        sceneStyle: { backgroundColor: BH.feedGray },
       }}>
       <Tabs.Screen
         name="index"

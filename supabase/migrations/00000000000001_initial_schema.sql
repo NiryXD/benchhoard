@@ -1,4 +1,4 @@
--- letstouchbase initial schema
+-- benchhoard initial schema
 -- Conventions: auth identity comes from Clerk via Supabase third-party auth,
 -- so auth.jwt()->>'sub' is the Clerk user id (text, not uuid).
 
@@ -8,7 +8,7 @@ create extension if not exists pg_cron;
 -- ---------------------------------------------------------------------------
 -- helper: current clerk user id from the verified JWT
 -- ---------------------------------------------------------------------------
-create or replace function ltb_uid() returns text
+create or replace function bh_uid() returns text
   language sql stable
   as $$ select nullif(auth.jwt()->>'sub', '') $$;
 
@@ -277,7 +277,7 @@ alter table devices enable row level security;
 alter table screen_counters enable row level security;
 
 -- helper: are two users matched (active match)?
-create or replace function ltb_is_matched(a text, b text) returns boolean
+create or replace function bh_is_matched(a text, b text) returns boolean
   language sql stable security definer
   as $$
     select exists (
@@ -290,87 +290,87 @@ create or replace function ltb_is_matched(a text, b text) returns boolean
 -- profiles: everyone authenticated can read non-paused profiles (discovery);
 -- owners manage their own row.
 create policy profiles_read on profiles for select to authenticated
-  using (is_paused = false or user_id = ltb_uid());
+  using (is_paused = false or user_id = bh_uid());
 create policy profiles_insert on profiles for insert to authenticated
-  with check (user_id = ltb_uid());
+  with check (user_id = bh_uid());
 create policy profiles_update on profiles for update to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 
 -- profile sub-resources: public read, owner write
 create policy education_read on education for select to authenticated using (true);
 create policy education_write on education for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 create policy experience_read on experience for select to authenticated using (true);
 create policy experience_write on experience for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 create policy behavioral_read on behavioral_answers for select to authenticated using (true);
 create policy behavioral_write on behavioral_answers for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 create policy photos_read on photos for select to authenticated using (true);
 create policy photos_write on photos for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 
 -- preferences: owner only (never visible to others)
 create policy preferences_owner on preferences for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 
 -- endorsements/references: public read (approved only), owner curates
 create policy endorsements_read on endorsements for select to authenticated using (true);
 create policy endorsements_delete on endorsements for delete to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 create policy references_read on reference_letters for select to authenticated
-  using (is_approved = true or user_id = ltb_uid());
+  using (is_approved = true or user_id = bh_uid());
 create policy references_moderate on reference_letters for update to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 create policy references_delete on reference_letters for delete to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 create policy ref_invites_owner on reference_invites for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 
 -- screens: parties can read their own inbound/outbound; writes via Edge Function only
 create policy screens_read on screens for select to authenticated
-  using (from_user = ltb_uid() or to_user = ltb_uid());
+  using (from_user = bh_uid() or to_user = bh_uid());
 
 create policy rejects_read on rejects for select to authenticated
-  using (from_user = ltb_uid());
+  using (from_user = bh_uid());
 
 -- matches & messages: parties only
 create policy matches_read on matches for select to authenticated
-  using (user_a = ltb_uid() or user_b = ltb_uid());
+  using (user_a = bh_uid() or user_b = bh_uid());
 create policy matches_stage on matches for update to authenticated
-  using (user_a = ltb_uid() or user_b = ltb_uid());
+  using (user_a = bh_uid() or user_b = bh_uid());
 create policy messages_read on messages for select to authenticated
   using (exists (select 1 from matches m where m.id = match_id
-                 and (m.user_a = ltb_uid() or m.user_b = ltb_uid())));
+                 and (m.user_a = bh_uid() or m.user_b = bh_uid())));
 create policy messages_send on messages for insert to authenticated
-  with check (sender = ltb_uid()
+  with check (sender = bh_uid()
     and exists (select 1 from matches m where m.id = match_id and m.ended_at is null
-                and (m.user_a = ltb_uid() or m.user_b = ltb_uid())));
+                and (m.user_a = bh_uid() or m.user_b = bh_uid())));
 create policy messages_retract on messages for update to authenticated
-  using (sender = ltb_uid());
+  using (sender = bh_uid());
 
 create policy rejection_letters_read on rejection_letters for select to authenticated
-  using (from_user = ltb_uid() or to_user = ltb_uid());
+  using (from_user = bh_uid() or to_user = bh_uid());
 create policy rejection_letters_send on rejection_letters for insert to authenticated
-  with check (from_user = ltb_uid());
+  with check (from_user = bh_uid());
 
 -- blocks & reports: writer-owned
 create policy blocks_owner on blocks for all to authenticated
-  using (blocker = ltb_uid()) with check (blocker = ltb_uid());
+  using (blocker = bh_uid()) with check (blocker = bh_uid());
 create policy reports_insert on reports for insert to authenticated
-  with check (reporter = ltb_uid());
+  with check (reporter = bh_uid());
 
 -- entitlements: owner read; written by RevenueCat webhook (service role)
 create policy entitlements_read on entitlements for select to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 
 -- devices: owner only
 create policy devices_owner on devices for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 
 -- counters: owner read; written by Edge Function (service role)
 create policy counters_read on screen_counters for select to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 
 -- ---------------------------------------------------------------------------
 -- storage buckets (photos public-read; resumes private, match-gated signed URLs)
@@ -379,13 +379,13 @@ insert into storage.buckets (id, name, public) values ('photos', 'photos', true)
 insert into storage.buckets (id, name, public) values ('resumes', 'resumes', false);
 
 create policy photos_upload on storage.objects for insert to authenticated
-  with check (bucket_id = 'photos' and (storage.foldername(name))[1] = ltb_uid());
+  with check (bucket_id = 'photos' and (storage.foldername(name))[1] = bh_uid());
 create policy photos_owner_delete on storage.objects for delete to authenticated
-  using (bucket_id = 'photos' and (storage.foldername(name))[1] = ltb_uid());
+  using (bucket_id = 'photos' and (storage.foldername(name))[1] = bh_uid());
 
 create policy resumes_owner_all on storage.objects for all to authenticated
-  using (bucket_id = 'resumes' and (storage.foldername(name))[1] = ltb_uid())
-  with check (bucket_id = 'resumes' and (storage.foldername(name))[1] = ltb_uid());
+  using (bucket_id = 'resumes' and (storage.foldername(name))[1] = bh_uid())
+  with check (bucket_id = 'resumes' and (storage.foldername(name))[1] = bh_uid());
 -- matched users read each other's resume PDFs
 create policy resumes_matched_read on storage.objects for select to authenticated
-  using (bucket_id = 'resumes' and ltb_is_matched(ltb_uid(), (storage.foldername(name))[1]));
+  using (bucket_id = 'resumes' and bh_is_matched(bh_uid(), (storage.foldername(name))[1]));

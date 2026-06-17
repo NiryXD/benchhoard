@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export const dynamic = "force-static";
 
-const BASE = "https://letstouchbase.pages.dev";
+const BASE = "https://benchhoard.pages.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // /reference is deliberately absent: token-gated pages have no business

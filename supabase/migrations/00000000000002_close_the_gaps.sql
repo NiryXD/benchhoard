@@ -45,7 +45,7 @@ create index impressions_viewed_idx on impressions (viewed, last_seen_at desc);
 
 alter table impressions enable row level security;
 create policy impressions_read on impressions for select to authenticated
-  using (viewer = ltb_uid() or viewed = ltb_uid());
+  using (viewer = bh_uid() or viewed = bh_uid());
 
 -- ---------------------------------------------------------------------------
 -- daily picks: the day's Recruiter's Pick, stored so it can be pinned and
@@ -60,7 +60,7 @@ create table daily_picks (
 
 alter table daily_picks enable row level security;
 create policy daily_picks_read on daily_picks for select to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 
 -- ---------------------------------------------------------------------------
 -- realtime: chat needs messages in the publication or Phase 3 hears nothing
@@ -73,11 +73,11 @@ alter publication supabase_realtime add table messages;
 drop policy profiles_read on profiles;
 create policy profiles_read on profiles for select to authenticated
   using (
-    (is_paused = false or user_id = ltb_uid())
+    (is_paused = false or user_id = bh_uid())
     and not exists (
       select 1 from blocks b
-      where (b.blocker = profiles.user_id and b.blocked = ltb_uid())
-         or (b.blocker = ltb_uid() and b.blocked = profiles.user_id)
+      where (b.blocker = profiles.user_id and b.blocked = bh_uid())
+         or (b.blocker = bh_uid() and b.blocked = profiles.user_id)
     )
   );
 
@@ -89,7 +89,7 @@ create policy profiles_read on profiles for select to authenticated
 --   - completeness: photos/answers/education/experience filled.
 --   - purge rejects past the 30-day recycle window (LIMITS.rejectRecycleDays).
 -- ---------------------------------------------------------------------------
-create or replace function ltb_nightly() returns void
+create or replace function bh_nightly() returns void
   language plpgsql security definer
   as $$
 begin
@@ -113,4 +113,4 @@ begin
 end;
 $$;
 
-select cron.schedule('ltb-nightly', '0 9 * * *', 'select ltb_nightly()');
+select cron.schedule('ltb-nightly', '0 9 * * *', 'select bh_nightly()');

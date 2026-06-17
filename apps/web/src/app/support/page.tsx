@@ -5,7 +5,7 @@
  */
 import type { Metadata } from "next";
 import Link from "next/link";
-import { glossary } from "@ltb/shared";
+import { glossary } from "@benchhoard/shared";
 
 export const metadata: Metadata = {
   title: `Support — ${glossary.brand.name}`,
@@ -17,7 +17,7 @@ export default function SupportPage() {
       <p>
         <Link href="/">← Back to {glossary.brand.name}</Link>
       </p>
-      <h1>Support / Human Resources</h1>
+      <h1>Support</h1>
       <p className="legal-meta">We aim to respond within 2 business days.</p>
 
       <h2>Contact</h2>
@@ -41,9 +41,10 @@ export default function SupportPage() {
           There are no subscriptions or in-app purchases.
         </li>
         <li>
-          <strong>Report a user or content.</strong> In any Alignment Call, tap{" "}
-          <em>Report &amp; Block</em>. We review every report and may remove
-          content or accounts.
+          <strong>Report a bench or content.</strong> Open a bench and tap{" "}
+          <em>Report</em> to flag a spot that doesn&rsquo;t exist, is on private
+          property, or has an inappropriate photo. We review every report and may
+          remove content or accounts.
         </li>
         <li>
           <strong>Notifications.</strong> Tune categories and quiet hours in{" "}
@@ -53,9 +54,10 @@ export default function SupportPage() {
 
       <h2>Safety</h2>
       <p>
-        We do not conduct background checks. Meet in public, tell a colleague
-        where you&rsquo;ll be, and trust your judgment. If you feel unsafe,
-        contact local authorities first, then report the user to us.
+        Bench data is community-contributed and may be inaccurate or out of
+        date. Use your own judgment when heading somewhere new, especially after
+        dark or to unfamiliar areas. If you feel unsafe, contact local
+        authorities first, then report the location to us.
       </p>
 
       <h2>Policies</h2>

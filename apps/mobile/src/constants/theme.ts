@@ -10,9 +10,9 @@ import { Platform } from 'react-native';
 /**
  * [Opus 4.8] Benchhoard palette — park greens and warm-wood paper. The app
  * should feel like a quiet field guide to the city, not a corporate tool. The
- * `LTB` export name is kept so the whole app's `import { LTB }` sites stay put.
+ * `BH` export name is kept so the whole app's `import { BH }` sites stay put.
  */
-export const LTB = {
+export const BH = {
   primary: '#2F7D4F',        // park green — primary actions
   primaryPressed: '#256340',
   navy: '#1E3A2F',           // deep forest — headers
@@ -33,19 +33,19 @@ export const LTB = {
 
 export const Colors = {
   light: {
-    text: LTB.ink,
-    background: LTB.feedGray,
-    backgroundElement: LTB.paper,
+    text: BH.ink,
+    background: BH.feedGray,
+    backgroundElement: BH.paper,
     backgroundSelected: '#E7F0E8',
-    textSecondary: LTB.inkSecondary,
+    textSecondary: BH.inkSecondary,
   },
   // v1 ships light-only (the field-guide look IS light mode); dark tracks it
   dark: {
-    text: LTB.ink,
-    background: LTB.feedGray,
-    backgroundElement: LTB.paper,
+    text: BH.ink,
+    background: BH.feedGray,
+    backgroundElement: BH.paper,
     backgroundSelected: '#E7F0E8',
-    textSecondary: LTB.inkSecondary,
+    textSecondary: BH.inkSecondary,
   },
 } as const;
 
@@ -91,7 +91,7 @@ export const MaxContentWidth = 800;
 
 /** Map a seat type's Hostility rank (0–4) to its marker color. */
 export function hostilityColor(rank: number): string {
-  if (rank <= 0) return LTB.hostility.welcoming;
-  if (rank <= 2) return LTB.hostility.moderate;
-  return LTB.hostility.hostile;
+  if (rank <= 0) return BH.hostility.welcoming;
+  if (rank <= 2) return BH.hostility.moderate;
+  return BH.hostility.hostile;
 }

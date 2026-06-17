@@ -26,9 +26,9 @@ alter table waitlist enable row level security;
 
 -- atomic referral increment for join-waitlist (supabase-js can't express
 -- `set x = x + 1`); locked away from the anon/authenticated roles.
-create function ltb_count_referral(p_referrer uuid) returns void
+create function bh_count_referral(p_referrer uuid) returns void
   language sql
   set search_path = public
   as $$ update waitlist set referral_count = referral_count + 1 where id = p_referrer $$;
-revoke execute on function ltb_count_referral(uuid) from public, anon, authenticated;
+revoke execute on function bh_count_referral(uuid) from public, anon, authenticated;
 

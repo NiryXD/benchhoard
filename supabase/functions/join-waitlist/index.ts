@@ -1,10 +1,10 @@
-// join-waitlist — public, pre-launch (docs/plan/08-backend-contracts.md §8).
-// Unauthenticated like submit-reference: deploy with
+// join-waitlist — public, pre-launch "get notified" signup.
+// Unauthenticated public endpoint: deploy with
 //   supabase functions deploy join-waitlist --no-verify-jwt
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = new Set([
-  "https://letstouchbase.pages.dev",
+  "https://benchhoard.pages.dev",
   "http://localhost:3000",
 ]);
 
@@ -15,7 +15,7 @@ const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function corsHeaders(origin: string | null): HeadersInit {
   return {
     "Access-Control-Allow-Origin":
-      origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://letstouchbase.pages.dev",
+      origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://benchhoard.pages.dev",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "content-type",
     "Content-Type": "application/json",
@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
     if (!inserted.error) {
       if (referrerId) {
         // Employee Referral Bonus: the referrer moves up
-        await db.rpc("ltb_count_referral", { p_referrer: referrerId });
+        await db.rpc("bh_count_referral", { p_referrer: referrerId });
       }
       return new Response(
         JSON.stringify({

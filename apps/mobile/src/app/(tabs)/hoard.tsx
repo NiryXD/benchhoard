@@ -1,9 +1,9 @@
 import { useAuth } from '@clerk/clerk-expo';
-import { glossary, type SeatType } from '@ltb/shared';
+import { glossary, type SeatType } from '@benchhoard/shared';
 import { Link } from 'expo-router';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
-import { LTB, Spacing } from '@/constants/theme';
+import { BH, Spacing } from '@/constants/theme';
 import { useMyHoard } from '@/lib/hoard';
 
 export default function HoardScreen() {
@@ -23,7 +23,7 @@ export default function HoardScreen() {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={LTB.primary} />
+        <ActivityIndicator color={BH.primary} />
       </View>
     );
   }
@@ -62,18 +62,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.two,
     padding: Spacing.four,
-    backgroundColor: LTB.feedGray,
+    backgroundColor: BH.feedGray,
   },
-  muted: { color: LTB.inkSecondary, textAlign: 'center' },
-  link: { color: LTB.primary, fontWeight: '700', paddingVertical: Spacing.two },
+  muted: { color: BH.inkSecondary, textAlign: 'center' },
+  link: { color: BH.primary, fontWeight: '700', paddingVertical: Spacing.two },
   list: { padding: Spacing.three, gap: Spacing.two },
   card: {
-    backgroundColor: LTB.paper,
+    backgroundColor: BH.paper,
     borderRadius: 12,
     padding: Spacing.three,
     borderWidth: 1,
-    borderColor: LTB.divider,
+    borderColor: BH.divider,
   },
-  name: { fontSize: 16, fontWeight: '700', color: LTB.ink },
-  label: { marginTop: Spacing.half, color: LTB.inkSecondary, fontStyle: 'italic' },
+  name: { fontSize: 16, fontWeight: '700', color: BH.ink },
+  label: { marginTop: Spacing.half, color: BH.inkSecondary, fontStyle: 'italic' },
 });

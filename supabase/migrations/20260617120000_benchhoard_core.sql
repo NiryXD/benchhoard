@@ -1,6 +1,6 @@
 -- ─── [Opus 4.8] Benchhoard core schema ──────────────────────────────────────
 -- Pivot from the dating domain to public-bench discovery. Reuses the existing
--- identity (profiles.user_id = Clerk JWT sub via ltb_uid()) and the PostGIS
+-- identity (profiles.user_id = Clerk JWT sub via bh_uid()) and the PostGIS
 -- geography(point,4326) + GIST pattern the deck already relies on.
 --
 -- Anonymous browsing is a product requirement: the `anon` role can read
@@ -100,30 +100,30 @@ alter table badges_earned enable row level security;
 -- benches: anyone (even signed-out) sees verified benches; you also see your own
 -- unverified additions. Direct writes are owner-only (the RPC awards points).
 create policy benches_read on benches for select to anon, authenticated
-  using (verified or added_by = ltb_uid());
+  using (verified or added_by = bh_uid());
 create policy benches_insert on benches for insert to authenticated
-  with check (added_by = ltb_uid());
+  with check (added_by = bh_uid());
 create policy benches_update on benches for update to authenticated
-  using (added_by = ltb_uid()) with check (added_by = ltb_uid());
+  using (added_by = bh_uid()) with check (added_by = bh_uid());
 create policy benches_delete on benches for delete to authenticated
-  using (added_by = ltb_uid());
+  using (added_by = bh_uid());
 
 -- photos + reviews are public to read (they describe a public object).
 create policy bench_photos_read on bench_photos for select to anon, authenticated using (true);
 create policy bench_photos_write on bench_photos for all to authenticated
-  using (added_by = ltb_uid()) with check (added_by = ltb_uid());
+  using (added_by = bh_uid()) with check (added_by = bh_uid());
 
 create policy bench_reviews_read on bench_reviews for select to anon, authenticated using (true);
 create policy bench_reviews_write on bench_reviews for all to authenticated
-  using (reviewer_id = ltb_uid()) with check (reviewer_id = ltb_uid());
+  using (reviewer_id = bh_uid()) with check (reviewer_id = bh_uid());
 
 -- hoards, discoveries, and badges are private to the user.
 create policy hoards_owner on hoards for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());
 create policy discoveries_read on discoveries for select to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 create policy badges_read on badges_earned for select to authenticated
-  using (user_id = ltb_uid());
+  using (user_id = bh_uid());
 
 -- ---------------------------------------------------------------------------
 -- storage — a public bucket for bench photos, owner-scoped by the first path
@@ -132,6 +132,6 @@ create policy badges_read on badges_earned for select to authenticated
 insert into storage.buckets (id, name, public) values ('bench-photos', 'bench-photos', true);
 
 create policy bench_photos_upload on storage.objects for insert to authenticated
-  with check (bucket_id = 'bench-photos' and (storage.foldername(name))[1] = ltb_uid());
+  with check (bucket_id = 'bench-photos' and (storage.foldername(name))[1] = bh_uid());
 create policy bench_photos_owner_delete on storage.objects for delete to authenticated
-  using (bucket_id = 'bench-photos' and (storage.foldername(name))[1] = ltb_uid());
+  using (bucket_id = 'bench-photos' and (storage.foldername(name))[1] = bh_uid());

@@ -1,10 +1,10 @@
-import { glossary, HOSTILITY_RANK, type SeatType } from '@ltb/shared';
+import { glossary, HOSTILITY_RANK, type SeatType } from '@benchhoard/shared';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, type Region } from 'react-native-maps';
 
-import { hostilityColor, LTB, Spacing } from '@/constants/theme';
+import { hostilityColor, BH, Spacing } from '@/constants/theme';
 import { BenchSheet } from '@/features/bench/BenchSheet';
 import { useRequireAuth } from '@/lib/auth';
 import { useNearbyBenches, type NearbyBench } from '@/lib/benches';
@@ -28,7 +28,7 @@ export default function MapScreen() {
   if (status === 'loading') {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={LTB.primary} />
+        <ActivityIndicator color={BH.primary} />
         <Text style={styles.muted}>{glossary.map.locating}</Text>
       </View>
     );
@@ -75,14 +75,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.two,
     padding: Spacing.four,
-    backgroundColor: LTB.feedGray,
+    backgroundColor: BH.feedGray,
   },
-  muted: { color: LTB.inkSecondary, textAlign: 'center' },
+  muted: { color: BH.inkSecondary, textAlign: 'center' },
   fab: {
     position: 'absolute',
     right: Spacing.three,
     bottom: Spacing.four,
-    backgroundColor: LTB.primary,
+    backgroundColor: BH.primary,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
     borderRadius: 24,
@@ -92,5 +92,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 4,
   },
-  fabText: { color: LTB.paper, fontWeight: '700' },
+  fabText: { color: BH.paper, fontWeight: '700' },
 });

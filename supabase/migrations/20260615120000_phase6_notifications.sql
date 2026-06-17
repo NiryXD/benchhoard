@@ -24,4 +24,4 @@ create table notification_prefs (
 alter table notification_prefs enable row level security;
 
 create policy notif_prefs_owner on notification_prefs for all to authenticated
-  using (user_id = ltb_uid()) with check (user_id = ltb_uid());
+  using (user_id = bh_uid()) with check (user_id = bh_uid());

@@ -1,12 +1,12 @@
 -- ─── [Opus 4.8] Authored by Claude Opus 4.8 in this session (Phase 5) ───────
 -- Expedited Review (the "boost" consumable). Credits were already granted by
--- ltb_grant_credits (entitlement helpers) but nothing consumed them or moved a
+-- bh_grant_credits (entitlement helpers) but nothing consumed them or moved a
 -- resume up the stack — a dead feature. This closes it: a boost window on the
 -- profile, an RPC to spend a credit, and a ranking term so boosted resumes
 -- surface at the top of every eligible viewer's deck.
 --
 -- Same posture as the rest of the schema: SECURITY DEFINER + pinned
--- search_path, identity always from ltb_uid(), full-table guards where needed.
+-- search_path, identity always from bh_uid(), full-table guards where needed.
 
 alter table profiles add column if not exists boosted_until timestamptz;
 
@@ -14,12 +14,12 @@ alter table profiles add column if not exists boosted_until timestamptz;
 -- Spend one Expedited Review credit → a 30-minute visibility window. Atomic:
 -- the credit is only consumed if one is available (where boost_credits > 0).
 -- ---------------------------------------------------------------------------
-create or replace function ltb_activate_boost() returns jsonb
+create or replace function bh_activate_boost() returns jsonb
   language plpgsql security definer
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
   until timestamptz := now() + interval '30 minutes';
 begin
   if me is null then raise exception 'unauthenticated'; end if;
@@ -39,14 +39,14 @@ begin
 end;
 $$;
 
-revoke execute on function ltb_activate_boost() from anon;
+revoke execute on function bh_activate_boost() from anon;
 
 -- ---------------------------------------------------------------------------
--- Re-declare ltb_deck_candidates (verbatim from migration 3) with one added
+-- Re-declare bh_deck_candidates (verbatim from migration 3) with one added
 -- ranking term: an active boost adds +1.0, which dominates the normalized
 -- 0..1 base score — "your resume moves to the top of the stack."
 -- ---------------------------------------------------------------------------
-create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim int)
+create or replace function bh_deck_candidates(me text, radius_mult numeric, lim int)
   returns table(uid text, score real)
   language sql stable security definer
   set search_path = public, extensions
@@ -72,8 +72,8 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       -- mutual gender + age
       and c.gender = any(vp.genders)
       and v.gender = any(cp.genders)
-      and ltb_age(c.birthdate) between vp.age_min and vp.age_max
-      and ltb_age(v.birthdate) between cp.age_min and cp.age_max
+      and bh_age(c.birthdate) between vp.age_min and vp.age_max
+      and bh_age(v.birthdate) between cp.age_min and cp.age_max
       -- viewer's Minimum Qualifications (dealbreakers)
       and (not vp.industries_db   or vp.industries   is null or c.industry     = any(vp.industries))
       and (not vp.archetypes_db   or vp.archetypes   is null or c.archetype    = any(vp.archetypes))
@@ -89,7 +89,7 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       and (not vp.height_db or vp.height_min_cm is null
            or c.height_cm between vp.height_min_cm and vp.height_max_cm)
       and (not vp.degree_db or vp.min_degree_rank is null
-           or (select max(ltb_degree_rank(ed.degree_level)) from education ed
+           or (select max(bh_degree_rank(ed.degree_level)) from education ed
                where ed.user_id = c.user_id) >= vp.min_degree_rank)
       -- candidate's Minimum Qualifications (mirror)
       and (not cp.industries_db   or cp.industries   is null or v.industry     = any(cp.industries))
@@ -106,7 +106,7 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       and (not cp.height_db or cp.height_min_cm is null
            or v.height_cm between cp.height_min_cm and cp.height_max_cm)
       and (not cp.degree_db or cp.min_degree_rank is null
-           or (select max(ltb_degree_rank(ed.degree_level)) from education ed
+           or (select max(bh_degree_rank(ed.degree_level)) from education ed
                where ed.user_id = v.user_id) >= cp.min_degree_rank)
       -- exclusions (doc 08, get-deck)
       and not exists (select 1 from matches m
@@ -129,4 +129,4 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
     limit lim
   $$;
 
-revoke execute on function ltb_deck_candidates(text, numeric, int) from public, anon, authenticated;
+revoke execute on function bh_deck_candidates(text, numeric, int) from public, anon, authenticated;

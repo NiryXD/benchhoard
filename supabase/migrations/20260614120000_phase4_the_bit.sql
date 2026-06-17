@@ -2,7 +2,7 @@
 -- Phase 4 — "The Bit": Exit Interviews, Endorsements, Quarterly Performance
 -- Review. Same security posture as the rest of the schema: deny-by-default RLS,
 -- SECURITY DEFINER functions with a pinned search_path, and viewer identity
--- always taken from ltb_uid() (the verified Clerk JWT) — never from arguments.
+-- always taken from bh_uid() (the verified Clerk JWT) — never from arguments.
 --
 -- Timestamp-named (per supabase-gotchas) so it sorts after the applied
 -- 20260612* remote migrations instead of ahead of them.
@@ -30,12 +30,12 @@ alter table exit_interviews enable row level security;
 -- Owner-only, and only for a match you are actually a party to. Reviews are
 -- never readable by the other side — confidential, like the feature promises.
 create policy exit_interviews_owner on exit_interviews for all to authenticated
-  using (user_id = ltb_uid())
+  using (user_id = bh_uid())
   with check (
-    user_id = ltb_uid()
+    user_id = bh_uid()
     and exists (
       select 1 from matches m
-      where m.id = match_id and (m.user_a = ltb_uid() or m.user_b = ltb_uid())
+      where m.id = match_id and (m.user_a = bh_uid() or m.user_b = bh_uid())
     )
   );
 
@@ -49,24 +49,24 @@ create policy exit_interviews_owner on exit_interviews for all to authenticated
 -- ---------------------------------------------------------------------------
 create policy endorsements_insert on endorsements for insert to authenticated
   with check (
-    endorser_id = ltb_uid()
+    endorser_id = bh_uid()
     and endorser_id <> user_id
-    and ltb_is_matched(ltb_uid(), user_id)
+    and bh_is_matched(bh_uid(), user_id)
   );
 
 -- ---------------------------------------------------------------------------
--- Endorsement tallies on the resume card. Re-declare ltb_profile_card to add
+-- Endorsement tallies on the resume card. Re-declare bh_profile_card to add
 -- an aggregated `endorsements` array (skill + count), highest-vouched first.
 -- (Function body otherwise identical to migration 3.)
 -- ---------------------------------------------------------------------------
-create or replace function ltb_profile_card(uid text) returns jsonb
+create or replace function bh_profile_card(uid text) returns jsonb
   language sql stable security definer
   set search_path = public, extensions
   as $$
     select jsonb_build_object(
       'userId', p.user_id,
       'firstName', p.first_name,
-      'age', ltb_age(p.birthdate),
+      'age', bh_age(p.birthdate),
       'headline', p.headline,
       'executiveSummary', p.executive_summary,
       'currentTitle', p.current_title,
@@ -105,20 +105,20 @@ create or replace function ltb_profile_card(uid text) returns jsonb
     from profiles p where p.user_id = uid
   $$;
 
-revoke execute on function ltb_profile_card(text) from anon;
+revoke execute on function bh_profile_card(text) from anon;
 
 -- ---------------------------------------------------------------------------
 -- Quarterly Performance Review — the caller's own funnel metrics, computed
 -- from existing tables (no new tracking infra). SECURITY DEFINER so it can read
--- across the funnel, but every clause is scoped to ltb_uid(): a user can only
+-- across the funnel, but every clause is scoped to bh_uid(): a user can only
 -- ever pull their own numbers.
 -- ---------------------------------------------------------------------------
-create or replace function ltb_performance_review() returns jsonb
+create or replace function bh_performance_review() returns jsonb
   language plpgsql stable security definer
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
 begin
   if me is null then raise exception 'unauthenticated'; end if;
   return jsonb_build_object(
@@ -138,4 +138,4 @@ begin
 end;
 $$;
 
-revoke execute on function ltb_performance_review() from anon;
+revoke execute on function bh_performance_review() from anon;

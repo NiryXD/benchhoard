@@ -2,18 +2,18 @@
 -- Deviation from doc 08 (noted there): get-deck / request-screen /
 -- decide-screen / block-user run as Postgres functions instead of Edge
 -- Functions. Same server-side enforcement (viewer identity always from
--- ltb_uid(), never from arguments); Edge Functions remain for external
+-- bh_uid(), never from arguments); Edge Functions remain for external
 -- API work (push dispatch, account deletion, webhooks) in Phase 3+.
 
 -- ---------------------------------------------------------------------------
 -- helpers
 -- ---------------------------------------------------------------------------
-create or replace function ltb_age(d date) returns int
+create or replace function bh_age(d date) returns int
   language sql stable
   as $$ select date_part('year', age(d))::int $$;
 
 -- mirrors DEGREE_RANK in packages/shared/src/taxonomies.ts
-create or replace function ltb_degree_rank(level text) returns int
+create or replace function bh_degree_rank(level text) returns int
   language sql immutable
   as $$
     select case level
@@ -32,14 +32,14 @@ create or replace function ltb_degree_rank(level text) returns int
   $$;
 
 -- full resume card for the client (photos interleave client-side)
-create or replace function ltb_profile_card(uid text) returns jsonb
+create or replace function bh_profile_card(uid text) returns jsonb
   language sql stable security definer
   set search_path = public, extensions
   as $$
     select jsonb_build_object(
       'userId', p.user_id,
       'firstName', p.first_name,
-      'age', ltb_age(p.birthdate),
+      'age', bh_age(p.birthdate),
       'headline', p.headline,
       'executiveSummary', p.executive_summary,
       'currentTitle', p.current_title,
@@ -70,7 +70,7 @@ create or replace function ltb_profile_card(uid text) returns jsonb
 -- ---------------------------------------------------------------------------
 -- eligibility + Recruiter Score (docs/plan/05). radius_mult > 1 = widened.
 -- ---------------------------------------------------------------------------
-create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim int)
+create or replace function bh_deck_candidates(me text, radius_mult numeric, lim int)
   returns table(uid text, score real)
   language sql stable security definer
   set search_path = public, extensions
@@ -94,8 +94,8 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       -- mutual gender + age
       and c.gender = any(vp.genders)
       and v.gender = any(cp.genders)
-      and ltb_age(c.birthdate) between vp.age_min and vp.age_max
-      and ltb_age(v.birthdate) between cp.age_min and cp.age_max
+      and bh_age(c.birthdate) between vp.age_min and vp.age_max
+      and bh_age(v.birthdate) between cp.age_min and cp.age_max
       -- viewer's Minimum Qualifications (dealbreakers)
       and (not vp.industries_db   or vp.industries   is null or c.industry     = any(vp.industries))
       and (not vp.archetypes_db   or vp.archetypes   is null or c.archetype    = any(vp.archetypes))
@@ -111,7 +111,7 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       and (not vp.height_db or vp.height_min_cm is null
            or c.height_cm between vp.height_min_cm and vp.height_max_cm)
       and (not vp.degree_db or vp.min_degree_rank is null
-           or (select max(ltb_degree_rank(ed.degree_level)) from education ed
+           or (select max(bh_degree_rank(ed.degree_level)) from education ed
                where ed.user_id = c.user_id) >= vp.min_degree_rank)
       -- candidate's Minimum Qualifications (mirror)
       and (not cp.industries_db   or cp.industries   is null or v.industry     = any(cp.industries))
@@ -128,7 +128,7 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
       and (not cp.height_db or cp.height_min_cm is null
            or v.height_cm between cp.height_min_cm and cp.height_max_cm)
       and (not cp.degree_db or cp.min_degree_rank is null
-           or (select max(ltb_degree_rank(ed.degree_level)) from education ed
+           or (select max(bh_degree_rank(ed.degree_level)) from education ed
                where ed.user_id = v.user_id) >= cp.min_degree_rank)
       -- exclusions (doc 08, get-deck)
       and not exists (select 1 from matches m
@@ -154,12 +154,12 @@ create or replace function ltb_deck_candidates(me text, radius_mult numeric, lim
 -- ---------------------------------------------------------------------------
 -- get_deck: Recruiter's Pick + ranked batch + impressions + widening
 -- ---------------------------------------------------------------------------
-create or replace function ltb_get_deck(batch int default 30) returns jsonb
+create or replace function bh_get_deck(batch int default 30) returns jsonb
   language plpgsql security definer
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
   widened boolean := false;
   ids text[];
   pick text;
@@ -172,7 +172,7 @@ begin
   select dp.pick_user_id into pick
     from daily_picks dp where dp.user_id = me and dp.day = current_date;
   if pick is null then
-    select t.uid into pick from ltb_deck_candidates(me, 1, 1) t;
+    select t.uid into pick from bh_deck_candidates(me, 1, 1) t;
     if pick is not null then
       insert into daily_picks (user_id, day, pick_user_id)
       values (me, current_date, pick)
@@ -181,10 +181,10 @@ begin
   end if;
 
   select coalesce(array_agg(t.uid), '{}') into ids
-    from ltb_deck_candidates(me, 1, batch) t;
+    from bh_deck_candidates(me, 1, batch) t;
   if coalesce(array_length(ids, 1), 0) = 0 then
     select coalesce(array_agg(t.uid), '{}') into ids
-      from ltb_deck_candidates(me, 3, batch) t;
+      from bh_deck_candidates(me, 3, batch) t;
     widened := true;
   end if;
 
@@ -198,9 +198,9 @@ begin
 
   return jsonb_build_object(
     'widened', widened,
-    'pick', case when pick is null then null else ltb_profile_card(pick) end,
+    'pick', case when pick is null then null else bh_profile_card(pick) end,
     'candidates', coalesce(
-      (select jsonb_agg(ltb_profile_card(t.u) order by t.ord)
+      (select jsonb_agg(bh_profile_card(t.u) order by t.ord)
        from unnest(ids) with ordinality as t(u, ord)),
       '[]'::jsonb)
   );
@@ -211,7 +211,7 @@ $$;
 -- request_screen: the "like". Counter/credits enforced here (doc 08 #2).
 -- Raises 'DAILY_LIMIT' past 8/day for non-executives (UTC day).
 -- ---------------------------------------------------------------------------
-create or replace function ltb_request_screen(
+create or replace function bh_request_screen(
   target text,
   letter text,
   annotated_kind text default null,
@@ -222,7 +222,7 @@ create or replace function ltb_request_screen(
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
   existing screens%rowtype;
   cnt int;
 begin
@@ -281,7 +281,7 @@ $$;
 -- ---------------------------------------------------------------------------
 -- decide_screen: inbound accept → match; reject → optional rejection letter
 -- ---------------------------------------------------------------------------
-create or replace function ltb_decide_screen(
+create or replace function bh_decide_screen(
   screen_id bigint,
   decision text,
   letter text default null
@@ -290,7 +290,7 @@ create or replace function ltb_decide_screen(
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
   s screens%rowtype;
   mid uuid;
 begin
@@ -325,12 +325,12 @@ $$;
 -- ---------------------------------------------------------------------------
 -- block_user: block + terminate active match + clear pending screens
 -- ---------------------------------------------------------------------------
-create or replace function ltb_block_user(target text) returns void
+create or replace function bh_block_user(target text) returns void
   language plpgsql security definer
   set search_path = public, extensions
   as $$
 declare
-  me text := ltb_uid();
+  me text := bh_uid();
 begin
   if me is null then raise exception 'unauthenticated'; end if;
   insert into blocks (blocker, blocked) values (me, target) on conflict do nothing;
@@ -346,12 +346,12 @@ $$;
 
 -- deck passes ("Reject Candidate" on the Candidates tab) are client-direct
 create policy rejects_insert on rejects for insert to authenticated
-  with check (from_user = ltb_uid());
+  with check (from_user = bh_uid());
 
 -- internal helpers are not for direct client use
-revoke execute on function ltb_deck_candidates(text, numeric, int) from public, anon, authenticated;
-revoke execute on function ltb_profile_card(text) from anon;
-revoke execute on function ltb_get_deck(int) from anon;
-revoke execute on function ltb_request_screen(text, text, text, text, boolean) from anon;
-revoke execute on function ltb_decide_screen(bigint, text, text) from anon;
-revoke execute on function ltb_block_user(text) from anon;
+revoke execute on function bh_deck_candidates(text, numeric, int) from public, anon, authenticated;
+revoke execute on function bh_profile_card(text) from anon;
+revoke execute on function bh_get_deck(int) from anon;
+revoke execute on function bh_request_screen(text, text, text, text, boolean) from anon;
+revoke execute on function bh_decide_screen(bigint, text, text) from anon;
+revoke execute on function bh_block_user(text) from anon;
