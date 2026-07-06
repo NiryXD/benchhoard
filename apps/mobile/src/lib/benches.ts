@@ -129,11 +129,31 @@ export function useReviewBench(benchId: string) {
         in_note: input.note ?? null,
       });
       if (error) throw error;
+      track('bench_reviewed', { comfort: input.comfort });
       return data as RewardResult;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bench', benchId] });
       queryClient.invalidateQueries({ queryKey: ['stats'] });
+    },
+  });
+}
+
+/**
+ * Record the first physical arrival at a bench (fires the firstVisit discovery
+ * bonus + keeps the streak alive). Fire-and-forget: a failure or a repeat visit
+ * is a no-op server-side, so callers don't surface errors.
+ */
+export function useRecordVisit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (benchId: string): Promise<RewardResult> => {
+      const { data, error } = await supabase.rpc('bh_record_visit', { in_bench: benchId });
+      if (error) throw error;
+      return data as RewardResult;
+    },
+    onSuccess: (res) => {
+      if (res.pointsAwarded > 0) queryClient.invalidateQueries({ queryKey: ['stats'] });
     },
   });
 }

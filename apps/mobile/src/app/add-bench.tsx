@@ -3,6 +3,10 @@ import {
   AMENITIES,
   type Amenity,
   glossary,
+  MATERIALS,
+  type Material,
+  NOISE_LEVELS,
+  type NoiseLevel,
   SEAT_TYPES,
   type SeatType,
   SIGHTLINES,
@@ -41,9 +45,12 @@ export default function AddBenchScreen() {
   const addBench = useAddBench();
 
   const [seatType, setSeatType] = useState<SeatType>('true_bench');
+  const [material, setMaterial] = useState<Material | undefined>(undefined);
   const [sunExposure, setSunExposure] = useState<SunExposure | undefined>(undefined);
+  const [noise, setNoise] = useState<NoiseLevel | undefined>(undefined);
   const [sightline, setSightline] = useState<Sightline | undefined>(undefined);
   const [amenities, setAmenities] = useState<Amenity[]>([]);
+  const [capacity, setCapacity] = useState<number | undefined>(undefined);
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -61,9 +68,12 @@ export default function AddBenchScreen() {
         lng: coords.lng,
         seatType,
         name: name.trim() || undefined,
+        material,
         sunExposure,
+        noise,
         sightline,
         amenities,
+        capacity,
         notes: notes.trim() || undefined,
       },
       {
@@ -100,6 +110,18 @@ export default function AddBenchScreen() {
           ))}
         </View>
 
+        <Text style={styles.label}>{glossary.bench.material}</Text>
+        <View style={styles.chips}>
+          {MATERIALS.map((m) => (
+            <Chip
+              key={m}
+              label={glossary.materials[m]}
+              on={material === m}
+              onPress={() => setMaterial((cur) => (cur === m ? undefined : m))}
+            />
+          ))}
+        </View>
+
         <Text style={styles.label}>{glossary.bench.sun}</Text>
         <View style={styles.chips}>
           {SUN_EXPOSURE.map((s) => (
@@ -108,6 +130,18 @@ export default function AddBenchScreen() {
               label={glossary.sunExposure[s]}
               on={sunExposure === s}
               onPress={() => setSunExposure((cur) => (cur === s ? undefined : s))}
+            />
+          ))}
+        </View>
+
+        <Text style={styles.label}>{glossary.bench.noise}</Text>
+        <View style={styles.chips}>
+          {NOISE_LEVELS.map((n) => (
+            <Chip
+              key={n}
+              label={glossary.noiseLevels[n]}
+              on={noise === n}
+              onPress={() => setNoise((cur) => (cur === n ? undefined : n))}
             />
           ))}
         </View>
@@ -129,6 +163,23 @@ export default function AddBenchScreen() {
           {AMENITIES.map((a) => (
             <Chip key={a} label={glossary.amenities[a]} on={amenities.includes(a)} onPress={() => toggleAmenity(a)} />
           ))}
+        </View>
+
+        <Text style={styles.label}>{glossary.bench.capacity}</Text>
+        <View style={styles.capacityRow}>
+          <Pressable
+            style={styles.capacityBtn}
+            onPress={() => setCapacity((c) => (c && c > 1 ? c - 1 : undefined))}
+            accessibilityLabel="Fewer seats">
+            <Text style={styles.capacityBtnText}>−</Text>
+          </Pressable>
+          <Text style={styles.capacityValue}>{capacity ?? '—'}</Text>
+          <Pressable
+            style={styles.capacityBtn}
+            onPress={() => setCapacity((c) => Math.min((c ?? 0) + 1, 20))}
+            accessibilityLabel="More seats">
+            <Text style={styles.capacityBtnText}>＋</Text>
+          </Pressable>
         </View>
 
         <Text style={styles.label}>{glossary.addBench.nameLabel}</Text>
@@ -178,6 +229,19 @@ const styles = StyleSheet.create({
     color: BH.ink,
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
+  capacityRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, marginTop: Spacing.one },
+  capacityBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: BH.paper,
+    borderWidth: 1,
+    borderColor: BH.divider,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  capacityBtnText: { fontSize: 22, color: BH.primary, fontWeight: '700' },
+  capacityValue: { fontSize: 18, fontWeight: '800', color: BH.navy, minWidth: 32, textAlign: 'center' },
   chip: {
     backgroundColor: BH.paper,
     borderWidth: 1,

@@ -2,7 +2,7 @@
 -- Run: supabase test db   (applies migrations, then this in a rolled-back txn)
 
 begin;
-select plan(12);
+select plan(15);
 
 -- ── Setup as the owner (RLS bypassed) ───────────────────────────────────────
 -- Two hoarders; three benches around a known origin (0,0). Distances grow east.
@@ -88,6 +88,26 @@ select is(
 select ok(
   (bh_add_bench(0.0002, 0.0002, 'ledge') ->> 'benchId') is not null,
   'a second add within the daily cap succeeds'
+);
+
+-- lazily creating a hoarder identity must succeed. This is the regression guard
+-- for the legacy first_name NOT NULL column: before it was pruned, this insert
+-- raised a not-null violation and no user could ever be created.
+select lives_ok(
+  $$ select bh_ensure_profile('Ada Prime') $$,
+  'bh_ensure_profile creates/updates the hoarder identity without error'
+);
+
+-- the leaderboard is public — it must expose a rank and name, never the raw
+-- Clerk user id.
+select is(
+  (select (bh_leaderboard() -> 0 ->> 'rank')::int),
+  1,
+  'bh_leaderboard ranks the top hoarder #1'
+);
+select ok(
+  not ((bh_leaderboard() -> 0) ? 'user_id'),
+  'bh_leaderboard does not leak the raw user id'
 );
 
 select * from finish();

@@ -26,7 +26,7 @@ export function useMyStats() {
 }
 
 export type LeaderRow = {
-  user_id: string;
+  rank: number;
   name: string;
   points: number;
   benches_added: number;

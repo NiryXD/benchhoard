@@ -69,25 +69,25 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="resume-card rise rise-5" aria-hidden="true">
+          <div className="bench-card rise rise-5" aria-hidden="true">
             <span className="stamp">{glossary.hostility.welcoming}</span>
-            <div className="resume-head">
-              <div className="resume-avatar">🪑</div>
+            <div className="bench-head">
+              <div className="bench-avatar">🪑</div>
               <div>
-                <div className="resume-name">The willow bench</div>
-                <div className="resume-role">True bench · faces the fountain</div>
-                <span className="otw">{glossary.sunExposure.full_shade}</span>
+                <div className="bench-name">The willow bench</div>
+                <div className="bench-role">True bench · faces the fountain</div>
+                <span className="tag">{glossary.sunExposure.full_shade}</span>
               </div>
             </div>
-            <hr className="resume-rule" />
-            <div className="resume-section-label">{glossary.bench.sightline}</div>
+            <hr className="bench-rule" />
+            <div className="bench-section-label">{glossary.bench.sightline}</div>
             <blockquote>&ldquo;{glossary.sightlines.water} — quiet enough to hear it.&rdquo;</blockquote>
-            <hr className="resume-rule" />
-            <div className="resume-section-label">{glossary.bench.amenities}</div>
+            <hr className="bench-rule" />
+            <div className="bench-section-label">{glossary.bench.amenities}</div>
             <blockquote>
               {glossary.amenities.backrest} · {glossary.amenities.near_water_fountain}
             </blockquote>
-            <div className="resume-actions">
+            <div className="bench-actions">
               <span className="btn btn-ghost">{glossary.bench.directions}</span>
               <span className="btn btn-primary">{glossary.hoard.claim}</span>
             </div>

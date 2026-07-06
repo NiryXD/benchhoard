@@ -100,6 +100,15 @@ export const glossary = {
     },
   },
 
+  materials: {
+    wood: "Wood",
+    stone: "Stone",
+    metal: "Metal",
+    concrete: "Concrete",
+    plastic: "Plastic",
+    mixed: "Mixed",
+  },
+
   sunExposure: {
     full_sun: "Full sun",
     partial_shade: "Partial shade",
@@ -145,6 +154,17 @@ export const glossary = {
     success: "Added to the map. Thanks for growing the archive.",
     error: "Couldn't add that bench. Check your connection and try again.",
     locationMissing: "Set the bench's location first.",
+  },
+
+  review: {
+    title: "Comfort",
+    prompt: "Sat here? Rate how comfortable it was.",
+    notePlaceholder: "Anything worth knowing before someone sits down?",
+    submit: "Leave a rating",
+    yours: "Your rating",
+    signedOut: "Sign in to rate this bench.",
+    thanks: "Thanks — your rating is on the map.",
+    empty: "No ratings yet. Be the first to say how it sits.",
   },
 
   hoard: {

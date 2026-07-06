@@ -4,7 +4,11 @@ import { Stack } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { BH, Spacing } from '@/constants/theme';
-import { useNotificationPrefs, useUpdateNotificationPrefs } from '@/lib/notification-prefs';
+import {
+  type NotificationPrefs,
+  useNotificationPrefs,
+  useUpdateNotificationPrefs,
+} from '@/lib/notification-prefs';
 
 const N = glossary.notifications;
 
@@ -22,6 +26,12 @@ export default function NotificationsScreen() {
   const quietStart = prefs?.quietStart ?? 22;
   const quietEnd = prefs?.quietEnd ?? 7;
   const quietOn = prefs?.quietStart != null && prefs?.quietEnd != null;
+
+  const categories = [
+    { key: 'nearby', title: N.categories.nearby, sub: N.categories.nearbySub, value: prefs?.nearby ?? true },
+    { key: 'badges', title: N.categories.badges, sub: N.categories.badgesSub, value: prefs?.badges ?? true },
+    { key: 'verified', title: N.categories.verified, sub: N.categories.verifiedSub, value: prefs?.verified ?? true },
+  ] as const;
 
   const stepHour = (which: 'start' | 'end', delta: number) => {
     const next = (((which === 'start' ? quietStart : quietEnd) + delta) % 24 + 24) % 24;
@@ -45,6 +55,22 @@ export default function NotificationsScreen() {
             trackColor={{ true: BH.primary, false: BH.divider }}
           />
         </View>
+
+        <Text style={styles.sectionTitle}>{N.categoriesTitle}</Text>
+        {categories.map((c) => (
+          <View key={c.key} style={[styles.row, !pushEnabled && styles.rowDisabled]}>
+            <View style={styles.rowText}>
+              <Text style={styles.rowTitle}>{c.title}</Text>
+              <Text style={styles.rowSub}>{c.sub}</Text>
+            </View>
+            <Switch
+              value={pushEnabled && c.value}
+              disabled={!pushEnabled}
+              onValueChange={(v) => update.mutate({ [c.key]: v } as Partial<NotificationPrefs>)}
+              trackColor={{ true: BH.primary, false: BH.divider }}
+            />
+          </View>
+        ))}
 
         <Text style={styles.sectionTitle}>{N.quietTitle}</Text>
         <Text style={styles.sub}>{N.quietSub}</Text>
@@ -111,6 +137,7 @@ const styles = StyleSheet.create({
     borderColor: BH.divider,
     marginTop: Spacing.two,
   },
+  rowDisabled: { opacity: 0.5 },
   rowText: { flex: 1, paddingRight: Spacing.three },
   rowTitle: { fontWeight: '700', color: BH.ink },
   rowSub: { color: BH.inkSecondary, fontSize: 12 },

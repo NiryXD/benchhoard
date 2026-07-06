@@ -1,11 +1,25 @@
 // ─── [Opus 4.8] Benchhoard — bench detail sheet (qualities + reviews + hoard) ─
 import { glossary, HOSTILITY_RANK, type Amenity, type SeatType } from '@benchhoard/shared';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { hostilityColor, BH, Spacing } from '@/constants/theme';
 import { useRequireAuth } from '@/lib/auth';
-import { useBenchDetail, type NearbyBench } from '@/lib/benches';
+import { useBenchDetail, useReviewBench, type NearbyBench } from '@/lib/benches';
 import { useIsHoarded, useToggleHoard } from '@/lib/hoard';
+
+/** A tappable 1–5 comfort picker. */
+function StarPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  return (
+    <View style={styles.starRow}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Pressable key={n} onPress={() => onChange(n)} hitSlop={6} accessibilityLabel={`${n} stars`}>
+          <Text style={[styles.starPick, n <= value ? styles.starPickOn : null]}>★</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -20,7 +34,11 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
   const { data: detail } = useBenchDetail(bench.id);
   const { data: hoarded } = useIsHoarded(bench.id);
   const toggleHoard = useToggleHoard();
+  const review = useReviewBench(bench.id);
   const requireAuth = useRequireAuth();
+
+  const [comfort, setComfort] = useState(0);
+  const [note, setNote] = useState('');
 
   const rank = HOSTILITY_RANK[bench.seat_type as SeatType] ?? 0;
   const hostilityLabel =
@@ -28,6 +46,20 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
 
   const onHoard = () =>
     requireAuth(() => toggleHoard.mutate({ benchId: bench.id }));
+
+  const onSubmitReview = () =>
+    requireAuth(() => {
+      if (comfort < 1) return;
+      review.mutate(
+        { comfort, note: note.trim() || undefined },
+        {
+          onSuccess: () => {
+            setComfort(0);
+            setNote('');
+          },
+        },
+      );
+    });
 
   return (
     <View style={styles.backdrop}>
@@ -45,6 +77,12 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
             <Text style={styles.rowLabel}>{glossary.bench.hostility}</Text>
             <Text style={[styles.badge, { backgroundColor: hostilityColor(rank) }]}>{hostilityLabel}</Text>
           </View>
+          {bench.material ? (
+            <Row
+              label={glossary.bench.material}
+              value={glossary.materials[bench.material as keyof typeof glossary.materials] ?? bench.material}
+            />
+          ) : null}
           {bench.sun_exposure ? (
             <Row
               label={glossary.bench.sun}
@@ -63,6 +101,9 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
               value={glossary.sightlines[bench.sightline as keyof typeof glossary.sightlines]}
             />
           ) : null}
+          {bench.capacity ? (
+            <Row label={glossary.bench.capacity} value={String(bench.capacity)} />
+          ) : null}
           {bench.amenities.length > 0 ? (
             <View style={styles.chips}>
               {bench.amenities.map((a) => (
@@ -74,14 +115,43 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
           ) : null}
 
           <Text style={styles.sectionTitle}>
-            Comfort{detail?.avgComfort != null ? ` · ${detail.avgComfort.toFixed(1)}★` : ''}
+            {glossary.review.title}
+            {detail?.avgComfort != null ? ` · ${detail.avgComfort.toFixed(1)}★` : ''}
           </Text>
-          {(detail?.reviews ?? []).slice(0, 5).map((r) => (
-            <View key={r.id} style={styles.review}>
-              <Text style={styles.reviewStars}>{'★'.repeat(r.comfort)}</Text>
-              {r.note ? <Text style={styles.reviewNote}>{r.note}</Text> : null}
-            </View>
-          ))}
+          {(detail?.reviews ?? []).length === 0 ? (
+            <Text style={styles.reviewEmpty}>{glossary.review.empty}</Text>
+          ) : (
+            (detail?.reviews ?? []).slice(0, 5).map((r) => (
+              <View key={r.id} style={styles.review}>
+                <Text style={styles.reviewStars}>{'★'.repeat(r.comfort)}</Text>
+                {r.note ? <Text style={styles.reviewNote}>{r.note}</Text> : null}
+              </View>
+            ))
+          )}
+
+          <View style={styles.reviewForm}>
+            <Text style={styles.reviewPrompt}>{glossary.review.prompt}</Text>
+            <StarPicker value={comfort} onChange={setComfort} />
+            {comfort > 0 ? (
+              <>
+                <TextInput
+                  style={styles.reviewInput}
+                  value={note}
+                  onChangeText={setNote}
+                  placeholder={glossary.review.notePlaceholder}
+                  placeholderTextColor={BH.inkSecondary}
+                  multiline
+                  maxLength={200}
+                />
+                <Pressable
+                  style={[styles.reviewSubmit, review.isPending ? styles.reviewSubmitDisabled : null]}
+                  onPress={onSubmitReview}
+                  disabled={review.isPending}>
+                  <Text style={styles.reviewSubmitText}>{glossary.review.submit}</Text>
+                </Pressable>
+              </>
+            ) : null}
+          </View>
 
           <Pressable
             style={[styles.hoardBtn, hoarded ? styles.hoardBtnOn : null]}
@@ -141,6 +211,36 @@ const styles = StyleSheet.create({
   review: { marginTop: Spacing.one },
   reviewStars: { color: BH.accent },
   reviewNote: { color: BH.ink },
+  reviewEmpty: { color: BH.inkSecondary, fontStyle: 'italic' },
+  reviewForm: {
+    marginTop: Spacing.two,
+    padding: Spacing.three,
+    backgroundColor: BH.feedGray,
+    borderRadius: 12,
+    gap: Spacing.two,
+  },
+  reviewPrompt: { color: BH.inkSecondary, fontSize: 13 },
+  starRow: { flexDirection: 'row', gap: Spacing.one },
+  starPick: { fontSize: 30, color: BH.divider },
+  starPickOn: { color: BH.accent },
+  reviewInput: {
+    backgroundColor: BH.paper,
+    borderWidth: 1,
+    borderColor: BH.divider,
+    borderRadius: 10,
+    padding: Spacing.three,
+    color: BH.ink,
+    minHeight: 64,
+    textAlignVertical: 'top',
+  },
+  reviewSubmit: {
+    backgroundColor: BH.primary,
+    borderRadius: 10,
+    paddingVertical: Spacing.two + 2,
+    alignItems: 'center',
+  },
+  reviewSubmitDisabled: { opacity: 0.6 },
+  reviewSubmitText: { color: BH.paper, fontWeight: '700' },
   hoardBtn: {
     marginTop: Spacing.three,
     backgroundColor: BH.primary,

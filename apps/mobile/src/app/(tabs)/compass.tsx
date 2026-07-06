@@ -1,15 +1,30 @@
+import { useAuth } from '@clerk/clerk-expo';
 import { glossary, type SeatType } from '@benchhoard/shared';
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { BH, Spacing } from '@/constants/theme';
-import { useNearbyBenches } from '@/lib/benches';
+import { useNearbyBenches, useRecordVisit } from '@/lib/benches';
 import { useDeviceLocation, useHeading } from '@/lib/location';
 
 export default function CompassScreen() {
   const { coords, status } = useDeviceLocation();
   const { data: benches } = useNearbyBenches(coords, 10);
   const { heading } = useHeading();
+  const { isSignedIn } = useAuth();
+  const recordVisit = useRecordVisit();
+  const visited = useRef<Set<string>>(new Set());
   const nearest = benches?.[0] ?? null;
+
+  // First arrival at a bench (within 8 m) fires the firstVisit discovery bonus.
+  // Guarded so it runs once per bench per session and only when signed in.
+  const arrivedAt = nearest && nearest.distance_m < 8 ? nearest.id : null;
+  useEffect(() => {
+    if (isSignedIn && arrivedAt && !visited.current.has(arrivedAt)) {
+      visited.current.add(arrivedAt);
+      recordVisit.mutate(arrivedAt);
+    }
+  }, [isSignedIn, arrivedAt, recordVisit]);
 
   if (status === 'loading') {
     return (

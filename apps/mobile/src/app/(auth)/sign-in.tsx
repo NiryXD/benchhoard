@@ -1,6 +1,7 @@
 import { useSignIn } from '@clerk/clerk-expo';
 import { glossary } from '@benchhoard/shared';
 import { Link } from 'expo-router';
+// [Fable 5] fallback copy lives in the glossary so the voice stays consistent
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +18,7 @@ import { BH } from '@/constants/theme';
 
 function clerkErrorMessage(err: unknown): string {
   const e = err as { errors?: { message?: string }[] };
-  return e?.errors?.[0]?.message ?? 'Something went wrong. Please escalate to your manager (try again).';
+  return e?.errors?.[0]?.message ?? glossary.common.genericError;
 }
 
 export default function SignInScreen() {

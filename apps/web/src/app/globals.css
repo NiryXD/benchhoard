@@ -1,25 +1,24 @@
 /* ============================================================
-   benchhoard — marketing site
-   Design language: LinkedIn drag, Hinge bones (docs/plan/02-design.md)
-   The deadpan IS the joke: a B2B SaaS site that is inexplicably
-   a dating product. Corporate chrome, executed with a straight face.
+   Benchhoard — marketing site
+   A quiet field guide to public seating: park greens on warm paper,
+   matching the mobile app's palette (apps/mobile/src/constants/theme.ts).
    ============================================================ */
 
 :root {
-  --blue: #0a66c2;
-  --blue-dark: #084d92;
-  --blue-wash: #e8f1fa;
-  --navy: #0b2e4e;
-  --bg: #f3f2ef; /* LinkedIn's exact feed gray */
-  --ink: #1d2226;
-  --ink-soft: #56616b;
-  --line: #d8d4cc;
+  --accent: #2f7d4f; /* park green — primary actions + links */
+  --accent-dark: #256340;
+  --accent-wash: #e7f0e8; /* pale green tint */
+  --forest: #1e3a2f; /* deep forest — headers */
+  --gold: #b8860b; /* discovery / badge gold */
+  --bg: #f4f1ea; /* warm paper — page background */
+  --ink: #1f2a23; /* primary text */
+  --ink-soft: #5e6b5a; /* secondary text */
+  --line: #e4dfd3;
   --card: #ffffff;
-  --paper: #fffdf7; /* letterhead stock */
-  --green: #057642; /* Open-to-Work green */
-  --serif: Georgia, "Times New Roman", serif; /* official documents only */
+  --paper: #fffdf7; /* field-guide stock */
+  --serif: Georgia, "Times New Roman", serif;
   --radius: 6px;
-  --shadow: 0 1px 2px rgba(29, 34, 38, 0.12), 0 4px 16px rgba(29, 34, 38, 0.06);
+  --shadow: 0 1px 2px rgba(31, 42, 35, 0.12), 0 4px 16px rgba(31, 42, 35, 0.06);
 }
 
 * {
@@ -42,7 +41,7 @@ body {
 h1,
 h2,
 h3 {
-  color: var(--navy);
+  color: var(--forest);
   line-height: 1.12;
   margin: 0 0 0.5rem;
   letter-spacing: -0.015em;
@@ -53,7 +52,7 @@ p {
 }
 
 a {
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -67,19 +66,19 @@ a:hover {
   padding: 0 24px;
 }
 
-/* ---- corporate label (eyebrow) ---- */
+/* ---- eyebrow label ---- */
 .eyebrow {
   display: inline-block;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--blue);
-  border: 1px solid var(--blue);
+  color: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: 2px;
   padding: 3px 8px;
   margin-bottom: 14px;
-  background: var(--blue-wash);
+  background: var(--accent-wash);
 }
 
 /* ---- top bar ---- */
@@ -105,7 +104,7 @@ a:hover {
   gap: 8px;
   font-weight: 800;
   font-size: 1.05rem;
-  color: var(--navy);
+  color: var(--forest);
   letter-spacing: -0.02em;
 }
 
@@ -119,7 +118,7 @@ a:hover {
   width: 28px;
   height: 28px;
   border-radius: 4px;
-  background: var(--blue);
+  background: var(--accent);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 800;
@@ -139,7 +138,7 @@ a:hover {
 }
 
 .topnav a:hover {
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -167,23 +166,23 @@ a:hover {
 }
 
 .btn-primary {
-  background: var(--blue);
+  background: var(--accent);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: var(--blue-dark);
-  box-shadow: inset 0 0 0 1px var(--blue-dark);
+  background: var(--accent-dark);
+  box-shadow: inset 0 0 0 1px var(--accent-dark);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--blue);
-  border-color: var(--blue);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .btn-ghost:hover {
-  background: var(--blue-wash);
+  background: var(--accent-wash);
 }
 
 .topbar .btn {
@@ -191,12 +190,12 @@ a:hover {
   padding: 7px 16px;
 }
 
-/* ---- KPI ticker ---- */
+/* ---- fact ticker ---- */
 .ticker {
-  background: var(--navy);
-  color: #cfe3f7;
+  background: var(--forest);
+  color: #d7e6da;
   overflow: hidden;
-  border-bottom: 1px solid var(--navy);
+  border-bottom: 1px solid var(--forest);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -218,7 +217,7 @@ a:hover {
 .ticker span::after {
   content: "•";
   margin: 0 18px;
-  color: var(--blue);
+  color: var(--accent);
 }
 
 @keyframes ticker-scroll {
@@ -259,7 +258,7 @@ a:hover {
 }
 
 .hero .sub strong {
-  color: var(--navy);
+  color: var(--forest);
 }
 
 .hero-ctas {
@@ -294,8 +293,8 @@ a:hover {
   }
 }
 
-/* ---- mock resume card ---- */
-.resume-card {
+/* ---- mock bench card ---- */
+.bench-card {
   position: relative;
   background: var(--card);
   border: 1px solid var(--line);
@@ -306,7 +305,7 @@ a:hover {
   transition: transform 0.25s ease;
 }
 
-.resume-card:hover {
+.bench-card:hover {
   transform: rotate(0deg);
 }
 
@@ -315,7 +314,7 @@ a:hover {
   top: -14px;
   right: -10px;
   transform: rotate(6deg);
-  background: var(--blue);
+  background: var(--accent);
   color: #fff;
   font-size: 0.66rem;
   font-weight: 800;
@@ -326,58 +325,58 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-.resume-head {
+.bench-head {
   display: flex;
   gap: 14px;
   align-items: center;
   margin-bottom: 6px;
 }
 
-.resume-avatar {
+.bench-avatar {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--blue-wash);
-  border: 2px solid var(--green);
+  background: var(--accent-wash);
+  border: 2px solid var(--accent);
   display: grid;
   place-items: center;
   font-weight: 800;
-  color: var(--blue);
+  color: var(--accent);
   font-size: 1.2rem;
   flex-shrink: 0;
 }
 
-.resume-name {
+.bench-name {
   font-weight: 800;
-  color: var(--navy);
+  color: var(--forest);
   font-size: 1.06rem;
 }
 
-.resume-role {
+.bench-role {
   font-size: 0.84rem;
   color: var(--ink-soft);
 }
 
-.otw {
+.tag {
   display: inline-block;
   margin-top: 3px;
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--green);
-  background: #e6f4ec;
+  color: var(--accent);
+  background: var(--accent-wash);
   border-radius: 2px;
   padding: 2px 6px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.resume-rule {
+.bench-rule {
   border: 0;
   border-top: 1px solid var(--line);
   margin: 14px 0;
 }
 
-.resume-section-label {
+.bench-section-label {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -386,7 +385,7 @@ a:hover {
   margin-bottom: 4px;
 }
 
-.resume-card blockquote {
+.bench-card blockquote {
   margin: 0 0 4px;
   font-family: var(--serif);
   font-size: 0.98rem;
@@ -394,28 +393,17 @@ a:hover {
   font-style: italic;
 }
 
-.resume-actions {
+.bench-actions {
   display: flex;
   gap: 10px;
   margin-top: 18px;
 }
 
-.resume-actions .btn {
+.bench-actions .btn {
   flex: 1;
   text-align: center;
   font-size: 0.82rem;
   padding: 9px 8px;
-}
-
-.btn-reject {
-  background: transparent;
-  color: var(--ink-soft);
-  border-color: var(--line);
-}
-
-.btn-reject:hover {
-  border-color: var(--ink-soft);
-  background: #fff;
 }
 
 /* ---- sections ---- */
@@ -467,7 +455,7 @@ a:hover {
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: var(--blue);
+  color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -481,35 +469,6 @@ a:hover {
   font-size: 0.88rem;
   color: var(--ink-soft);
   margin: 0;
-}
-
-/* pipeline strip */
-.pipeline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 28px;
-  align-items: center;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--ink-soft);
-}
-
-.pipeline .stage {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 14px;
-}
-
-.pipeline .stage.final {
-  background: var(--green);
-  border-color: var(--green);
-  color: #fff;
-}
-
-.pipeline .arrow {
-  color: var(--line);
 }
 
 /* ---- glossary table ---- */
@@ -541,7 +500,7 @@ a:hover {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #fff;
-  background: var(--navy);
+  background: var(--forest);
   padding: 10px 18px;
 }
 
@@ -551,78 +510,19 @@ a:hover {
 }
 
 .glossary-table td:first-child {
-  color: var(--ink-soft);
-  text-decoration: line-through;
-  text-decoration-color: rgba(86, 97, 107, 0.5);
+  font-weight: 700;
+  color: var(--forest);
 }
 
 .glossary-table td:last-child {
-  font-weight: 700;
-  color: var(--navy);
-}
-
-/* ---- rejection letter set piece ---- */
-.letter-wrap {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 48px;
-  align-items: center;
-}
-
-@media (max-width: 880px) {
-  .letter-wrap {
-    grid-template-columns: 1fr;
-  }
-}
-
-.letter {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-  padding: 40px 44px;
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  transform: rotate(-1.2deg);
-  transition: transform 0.25s ease;
-}
-
-.letter:hover {
-  transform: rotate(0deg);
-}
-
-.letterhead {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  border-bottom: 2px solid var(--navy);
-  padding-bottom: 10px;
-  margin-bottom: 22px;
-  font-family: inherit;
-}
-
-.letterhead .lh-brand {
-  font-weight: 700;
-  color: var(--navy);
-  letter-spacing: 0.02em;
-}
-
-.letterhead .lh-office {
-  font-size: 0.72rem;
   color: var(--ink-soft);
-  font-style: italic;
-}
-
-.letter p {
-  margin: 0 0 1em;
-  white-space: pre-line;
 }
 
 /* ---- pricing ---- */
 .pricing-card {
   max-width: 560px;
   background: var(--card);
-  border: 2px solid var(--blue);
+  border: 2px solid var(--accent);
   border-radius: 10px;
   box-shadow: var(--shadow);
   padding: 30px 34px;
@@ -637,7 +537,7 @@ a:hover {
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--blue);
+  color: var(--accent);
 }
 
 .pricing-card ul {
@@ -657,17 +557,17 @@ a:hover {
   content: "✓";
   position: absolute;
   left: 4px;
-  color: var(--green);
+  color: var(--accent);
   font-weight: 800;
 }
 
 .policy-note {
   margin-top: 18px;
   font-size: 0.85rem;
-  background: var(--blue-wash);
-  border-left: 3px solid var(--blue);
+  background: var(--accent-wash);
+  border-left: 3px solid var(--accent);
   padding: 10px 14px;
-  color: var(--navy);
+  color: var(--forest);
 }
 
 /* ---- waitlist form ---- */
@@ -681,7 +581,7 @@ a:hover {
 }
 
 .form-card-head {
-  background: var(--navy);
+  background: var(--forest);
   color: #fff;
   padding: 14px 24px;
   display: flex;
@@ -694,7 +594,7 @@ a:hover {
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9fc3e8;
+  color: #a9c9b1;
   white-space: nowrap;
 }
 
@@ -726,9 +626,9 @@ a:hover {
 }
 
 .form-row input:focus {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--accent);
   outline-offset: -1px;
-  border-color: var(--blue);
+  border-color: var(--accent);
 }
 
 .form-hint {
@@ -745,15 +645,15 @@ a:hover {
 }
 
 .form-status.ok {
-  background: #e6f4ec;
-  color: var(--green);
-  border-left: 3px solid var(--green);
+  background: var(--accent-wash);
+  color: var(--accent-dark);
+  border-left: 3px solid var(--accent);
 }
 
 .form-status.err {
-  background: var(--blue-wash);
-  color: var(--navy);
-  border-left: 3px solid var(--blue);
+  background: #f7ece6;
+  color: #9a3b23;
+  border-left: 3px solid #b3402a;
 }
 
 .form-result-lede {
@@ -762,7 +662,7 @@ a:hover {
 }
 
 .form-result-lede strong {
-  color: var(--green);
+  color: var(--accent-dark);
 }
 
 .ref-row {
@@ -780,7 +680,7 @@ a:hover {
   padding: 8px 14px;
   font-size: 0.92rem;
   letter-spacing: 0.04em;
-  color: var(--navy);
+  color: var(--forest);
   user-select: all;
 }
 
@@ -809,97 +709,7 @@ a:hover {
 .age-gate {
   margin-top: 14px;
   font-weight: 700;
-  color: var(--navy);
-}
-
-/* ---- reference page ---- */
-.ref-page {
-  padding: 56px 0 96px;
-}
-
-.ref-page .wrap {
-  max-width: 720px;
-}
-
-.ref-back {
-  font-size: 0.85rem;
-  margin-bottom: 1.6rem;
-}
-
-.ref-state {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 28px 32px;
-  max-width: 560px;
-}
-
-.ref-state h2 {
-  font-size: 1.3rem;
-}
-
-.ref-letter {
-  transform: none;
-  margin-top: 8px;
-}
-
-.ref-letter:hover {
-  transform: none;
-}
-
-.ref-label {
-  display: block;
-  font-family: var(--franklin, inherit);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin: 18px 0 6px;
-}
-
-.ref-optional {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.ref-letter input,
-.ref-letter select,
-.ref-letter textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  font-family: var(--serif);
-  color: var(--ink);
-  background: #fff;
-}
-
-.ref-letter textarea {
-  resize: vertical;
-  line-height: 1.6;
-}
-
-.ref-letter input:focus,
-.ref-letter select:focus,
-.ref-letter textarea:focus {
-  outline: 2px solid var(--blue);
-  outline-offset: -1px;
-  border-color: var(--blue);
-}
-
-.ref-counter {
-  text-align: right;
-  font-size: 0.74rem;
-  color: var(--ink-soft);
-  margin-top: 4px;
-}
-
-.ref-actions {
-  margin-top: 16px;
+  color: var(--forest);
 }
 
 /* ---- legal pages ---- */

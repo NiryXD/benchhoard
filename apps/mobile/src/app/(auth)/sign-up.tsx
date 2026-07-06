@@ -17,7 +17,7 @@ import { BH } from '@/constants/theme';
 
 function clerkErrorMessage(err: unknown): string {
   const e = err as { errors?: { message?: string }[] };
-  return e?.errors?.[0]?.message ?? 'Something went wrong. Please escalate to your manager (try again).';
+  return e?.errors?.[0]?.message ?? glossary.common.genericError;
 }
 
 export default function SignUpScreen() {

@@ -1,5 +1,6 @@
-// ─── [Opus 4.8] Authored by Claude Opus 4.8 in this session (Phase 6) ───────
+// ─── [Fable 5] Benchhoard — push notifications ──────────────────────────────
 import { useAuth } from '@clerk/clerk-expo';
+import { BH } from '@/constants/theme';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -11,8 +12,9 @@ import { supabase } from './supabase';
 
 /**
  * Push notifications — the retention engine. Token registration upserts the
- * `devices` table the push-dispatch Edge Function fans out to; per-category
- * opt-outs and quiet hours are enforced server-side from notification_prefs.
+ * `devices` table a future dispatcher fans out to; per-category opt-outs and
+ * quiet hours are enforced server-side from notification_prefs (nearby benches,
+ * badge milestones, and bench confirmations).
  *
  * Everything is guarded: simulators, Expo Go, and missing EAS projectId all
  * degrade to "no push" rather than throwing.
@@ -37,13 +39,12 @@ function projectId(): string | undefined {
 function routeFromData(data: unknown): void {
   const kind = (data as { kind?: string } | null)?.kind;
   switch (kind) {
-    case 'screen':
-      router.push('/inbound');
+    case 'nearby':
+      router.push('/(tabs)'); // the map
       break;
-    case 'match':
-    case 'message':
-    case 'rejection':
-      router.push('/pipeline');
+    case 'badge':
+    case 'verified':
+      router.push('/(tabs)/you'); // discovery + badges
       break;
     default:
       break;
@@ -61,7 +62,7 @@ export async function registerForPushNotifications(userId: string): Promise<stri
     await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
       importance: Notifications.AndroidImportance.DEFAULT,
-      lightColor: '#0A66C2',
+      lightColor: BH.primary,
     });
   }
 

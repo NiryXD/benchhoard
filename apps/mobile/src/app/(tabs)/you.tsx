@@ -80,9 +80,9 @@ export default function YouScreen() {
       {(leaders ?? []).length === 0 ? (
         <Text style={styles.muted}>{glossary.rewards.leaderboardEmpty}</Text>
       ) : (
-        (leaders ?? []).map((row, i) => (
-          <View key={row.user_id} style={styles.leaderRow}>
-            <Text style={styles.leaderRank}>{i + 1}</Text>
+        (leaders ?? []).map((row) => (
+          <View key={row.rank} style={styles.leaderRow}>
+            <Text style={styles.leaderRank}>{row.rank}</Text>
             <Text style={styles.leaderName}>{row.name}</Text>
             <Text style={styles.leaderPoints}>{row.points}</Text>
           </View>

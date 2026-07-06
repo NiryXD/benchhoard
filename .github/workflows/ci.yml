@@ -40,8 +40,8 @@ jobs:
       - name: Build apps/web
         run: npm run build --workspace web
 
-  # [Opus 4.8] Deno unit tests for the Edge Functions' pure logic
-  # (notification prefs + RevenueCat product decoding). Fast + deterministic.
+  # Deno unit tests for the Edge Functions' pure logic (OpenStreetMap tag →
+  # bench taxonomy mapping + discovery-point values). Fast + deterministic.
   edge-tests:
     runs-on: ubuntu-latest
     steps:

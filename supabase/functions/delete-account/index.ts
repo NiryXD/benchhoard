@@ -1,5 +1,5 @@
-// delete-account — full wipe + Clerk delete (docs/plan/08-backend-contracts.md §5).
-// Store-required (Play account-deletion policy); Phase 6 blocker.
+// delete-account — full wipe + Clerk delete. Store-required (Play
+// account-deletion policy).
 //
 // Auth is the user's Clerk JWT, verified here against Clerk's JWKS — the
 // platform verifier only knows Supabase-signed JWTs, so deploy with:
@@ -59,11 +59,19 @@ Deno.serve(async (req) => {
 
   try {
     // 1. Storage first — the profiles cascade can't reach storage.objects.
-    await wipeFolder("photos", uid);
-    await wipeFolder("resumes", uid);
+    //    Bench photos live under bench-photos/{uid}/…
+    await wipeFolder("bench-photos", uid);
 
-    // 2. profiles row; education/experience/photos/screens/matches/messages/
-    //    blocks/reports/entitlements/devices/… all cascade from it.
+    // 2. Drop the bench_photos rows for those objects while added_by still
+    //    points at the user. The FK is `on delete set null`, so after the
+    //    profile is gone we could no longer find them, and they'd render as
+    //    dead image URLs on an otherwise-public bench.
+    const photos = await db.from("bench_photos").delete().eq("added_by", uid);
+    if (photos.error) throw new Error(`bench_photos delete: ${photos.error.message}`);
+
+    // 3. profiles row; hoards, discoveries, badges_earned, bench_reviews, and
+    //    the device tokens all cascade from it. Benches the user added survive
+    //    (they're the public archive) with added_by nulled by the FK.
     const del = await db.from("profiles").delete().eq("user_id", uid);
     if (del.error) throw new Error(`profiles delete: ${del.error.message}`);
 
