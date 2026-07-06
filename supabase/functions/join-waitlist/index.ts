@@ -27,6 +27,23 @@ function makeCode(): string {
   return [...bytes].map((b) => CODE_ALPHABET[b % CODE_ALPHABET.length]).join("");
 }
 
+// Fixed-window per-IP limit: at most this many submissions per window.
+const RATE_LIMIT = 10;
+const RATE_WINDOW_SECS = 3600; // 1 hour
+
+/** SHA-256 hex of a string — we store only the hash of the client IP. */
+async function sha256Hex(input: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** Best-effort client IP from the edge proxy headers. */
+function clientIp(req: Request): string {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return req.headers.get("cf-connecting-ip") ?? "unknown";
+}
+
 const db = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -51,6 +68,22 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers });
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "method_not_allowed" }), { status: 405, headers });
+  }
+
+  // Rate-limit before doing any work. Fail open on a limiter error — a signup
+  // outage is worse than a missed throttle.
+  try {
+    const key = await sha256Hex(clientIp(req));
+    const { data: ok } = await db.rpc("bh_waitlist_rate_ok", {
+      p_key: key,
+      p_limit: RATE_LIMIT,
+      p_window_secs: RATE_WINDOW_SECS,
+    });
+    if (ok === false) {
+      return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429, headers });
+    }
+  } catch (err) {
+    console.error("join-waitlist rate check failed", err);
   }
 
   let email = "";

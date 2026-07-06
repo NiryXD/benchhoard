@@ -3,6 +3,7 @@ import {
   AMENITIES,
   type Amenity,
   glossary,
+  LIMITS,
   MATERIALS,
   type Material,
   NOISE_LEVELS,
@@ -14,6 +15,7 @@ import {
   SUN_EXPOSURE,
   type SunExposure,
 } from '@benchhoard/shared';
+import { Image } from 'expo-image';
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -30,6 +32,7 @@ import {
 import { BH, Spacing } from '@/constants/theme';
 import { useAddBench } from '@/lib/benches';
 import { useDeviceLocation } from '@/lib/location';
+import { pickBenchPhoto, useUploadBenchPhoto, type PickedPhoto } from '@/lib/photos';
 
 function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
   return (
@@ -43,6 +46,7 @@ export default function AddBenchScreen() {
   const router = useRouter();
   const { coords, status } = useDeviceLocation();
   const addBench = useAddBench();
+  const uploadPhoto = useUploadBenchPhoto();
 
   const [seatType, setSeatType] = useState<SeatType>('true_bench');
   const [material, setMaterial] = useState<Material | undefined>(undefined);
@@ -53,9 +57,16 @@ export default function AddBenchScreen() {
   const [capacity, setCapacity] = useState<number | undefined>(undefined);
   const [name, setName] = useState('');
   const [notes, setNotes] = useState('');
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
 
   const toggleAmenity = (a: Amenity) =>
     setAmenities((cur) => (cur.includes(a) ? cur.filter((x) => x !== a) : [...cur, a]));
+
+  const onAttachPhoto = async () => {
+    if (photos.length >= LIMITS.photoMaxPerBench) return;
+    const picked = await pickBenchPhoto();
+    if (picked) setPhotos((cur) => [...cur, picked]);
+  };
 
   const onSubmit = () => {
     if (!coords) {
@@ -77,7 +88,16 @@ export default function AddBenchScreen() {
         notes: notes.trim() || undefined,
       },
       {
-        onSuccess: (res) => {
+        onSuccess: async (res) => {
+          // Upload any attached photos to the freshly created bench. Best effort:
+          // a failed upload shouldn't lose the bench the user just added.
+          for (const photo of photos) {
+            try {
+              await uploadPhoto.mutateAsync({ benchId: res.benchId, photo });
+            } catch {
+              // skip this photo; the bench is already saved
+            }
+          }
           const badge = res.badges[0];
           Alert.alert(
             glossary.addBench.success,
@@ -203,6 +223,32 @@ export default function AddBenchScreen() {
           maxLength={280}
         />
 
+        <Text style={styles.label}>{glossary.bench.photos}</Text>
+        {photos.length > 0 ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.thumbStrip}>
+            {photos.map((p, i) => (
+              <View key={i} style={styles.thumbWrap}>
+                <Image
+                  source={{ uri: `data:${p.mimeType};base64,${p.base64}` }}
+                  style={styles.thumb}
+                  contentFit="cover"
+                />
+                <Pressable
+                  style={styles.thumbRemove}
+                  onPress={() => setPhotos((cur) => cur.filter((_, j) => j !== i))}
+                  accessibilityLabel={glossary.common.remove}>
+                  <Text style={styles.thumbRemoveText}>×</Text>
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        ) : null}
+        {photos.length < LIMITS.photoMaxPerBench ? (
+          <Pressable style={styles.addPhoto} onPress={onAttachPhoto}>
+            <Text style={styles.addPhotoText}>＋ {glossary.addBench.addPhoto}</Text>
+          </Pressable>
+        ) : null}
+
         <Pressable
           style={[styles.submit, addBench.isPending ? styles.submitDisabled : null]}
           onPress={onSubmit}
@@ -262,6 +308,31 @@ const styles = StyleSheet.create({
     color: BH.ink,
   },
   multiline: { minHeight: 88, textAlignVertical: 'top' },
+  thumbStrip: { gap: Spacing.two, paddingVertical: Spacing.one },
+  thumbWrap: { position: 'relative' },
+  thumb: { width: 96, height: 72, borderRadius: 10, backgroundColor: BH.divider },
+  thumbRemove: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: BH.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbRemoveText: { color: BH.paper, fontSize: 14, fontWeight: '800', lineHeight: 16 },
+  addPhoto: {
+    marginTop: Spacing.two,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: BH.primary,
+    borderRadius: 999,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one + 2,
+  },
+  addPhotoText: { color: BH.primary, fontWeight: '700' },
   submit: {
     marginTop: Spacing.four,
     backgroundColor: BH.primary,

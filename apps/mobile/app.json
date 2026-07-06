@@ -54,6 +54,12 @@
           "color": "#2F7D4F"
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Benchhoard uses your photos so you can show what a bench is really like."
+        }
+      ],
       "@sentry/react-native/expo"
     ],
     "experiments": {

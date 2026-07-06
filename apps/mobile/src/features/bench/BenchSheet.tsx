@@ -1,12 +1,14 @@
 // ─── [Opus 4.8] Benchhoard — bench detail sheet (qualities + reviews + hoard) ─
-import { glossary, HOSTILITY_RANK, type Amenity, type SeatType } from '@benchhoard/shared';
+import { glossary, HOSTILITY_RANK, LIMITS, type Amenity, type SeatType } from '@benchhoard/shared';
+import { Image } from 'expo-image';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { hostilityColor, BH, Spacing } from '@/constants/theme';
 import { useRequireAuth } from '@/lib/auth';
-import { useBenchDetail, useReviewBench, type NearbyBench } from '@/lib/benches';
+import { benchPhotoUrl, useBenchDetail, useReviewBench, type NearbyBench } from '@/lib/benches';
 import { useIsHoarded, useToggleHoard } from '@/lib/hoard';
+import { pickBenchPhoto, useUploadBenchPhoto } from '@/lib/photos';
 
 /** A tappable 1–5 comfort picker. */
 function StarPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
@@ -35,7 +37,17 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
   const { data: hoarded } = useIsHoarded(bench.id);
   const toggleHoard = useToggleHoard();
   const review = useReviewBench(bench.id);
+  const uploadPhoto = useUploadBenchPhoto();
   const requireAuth = useRequireAuth();
+
+  const photos = detail?.photos ?? [];
+  const canAddPhoto = photos.length < LIMITS.photoMaxPerBench && !uploadPhoto.isPending;
+
+  const onAddPhoto = () =>
+    requireAuth(async () => {
+      const picked = await pickBenchPhoto();
+      if (picked) uploadPhoto.mutate({ benchId: bench.id, photo: picked });
+    });
 
   const [comfort, setComfort] = useState(0);
   const [note, setNote] = useState('');
@@ -45,7 +57,20 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
     rank <= 0 ? glossary.hostility.welcoming : rank <= 2 ? glossary.hostility.moderate : glossary.hostility.hostile;
 
   const onHoard = () =>
-    requireAuth(() => toggleHoard.mutate({ benchId: bench.id }));
+    requireAuth(() =>
+      toggleHoard.mutate(
+        { benchId: bench.id },
+        {
+          onError: (err) => {
+            const message = (err as { message?: string })?.message ?? '';
+            Alert.alert(
+              glossary.hoard.title,
+              message.includes('HOARD_LIMIT') ? glossary.hoard.limitReached : glossary.common.genericError,
+            );
+          },
+        },
+      ),
+    );
 
   const onSubmitReview = () =>
     requireAuth(() => {
@@ -113,6 +138,32 @@ export function BenchSheet({ bench, onClose }: { bench: NearbyBench; onClose: ()
               ))}
             </View>
           ) : null}
+
+          <View style={styles.photosHeader}>
+            <Text style={styles.sectionTitle}>{glossary.bench.photos}</Text>
+            {canAddPhoto ? (
+              <Pressable onPress={onAddPhoto} hitSlop={8}>
+                <Text style={styles.addPhoto}>
+                  {uploadPhoto.isPending ? glossary.common.loading : `＋ ${glossary.addBench.addPhoto}`}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {photos.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoStrip}>
+              {photos.map((p) => (
+                <Image
+                  key={p.id}
+                  source={{ uri: benchPhotoUrl(p.storage_path) }}
+                  style={styles.photo}
+                  contentFit="cover"
+                  transition={150}
+                />
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.reviewEmpty}>{glossary.bench.photosEmpty}</Text>
+          )}
 
           <Text style={styles.sectionTitle}>
             {glossary.review.title}
@@ -208,6 +259,15 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     fontSize: 12,
   },
+  photosHeader: {
+    marginTop: Spacing.two,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  addPhoto: { color: BH.primary, fontWeight: '700', fontSize: 13 },
+  photoStrip: { gap: Spacing.two, paddingVertical: Spacing.one },
+  photo: { width: 120, height: 90, borderRadius: 10, backgroundColor: BH.feedGray },
   review: { marginTop: Spacing.one },
   reviewStars: { color: BH.accent },
   reviewNote: { color: BH.ink },

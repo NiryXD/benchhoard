@@ -16,6 +16,7 @@ type WaitlistResult = {
 export function WaitlistForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [errMsg, setErrMsg] = useState("Something went wrong. Please try again.");
   const [result, setResult] = useState<WaitlistResult | null>(null);
   const [ref, setRef] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -38,6 +39,11 @@ export function WaitlistForm() {
         body: JSON.stringify(ref ? { email, ref } : { email }),
       });
       if (!res.ok) {
+        setErrMsg(
+          res.status === 429
+            ? "Too many attempts just now — please try again in a little while."
+            : "Something went wrong. Please try again.",
+        );
         setStatus("err");
         return;
       }
@@ -127,7 +133,7 @@ export function WaitlistForm() {
         </p>
         {status === "err" && (
           <p className="form-status err" role="status">
-            Something went wrong. Please try again.
+            {errMsg}
           </p>
         )}
       </div>

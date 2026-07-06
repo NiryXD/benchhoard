@@ -69,6 +69,7 @@ export const glossary = {
     sightline: "Sightlines",
     amenities: "Amenities",
     capacity: "Seats",
+    photos: "Photos",
     notes: "Field notes",
     addedBy: "Added by a hoarder",
     fromOsm: "From OpenStreetMap",
@@ -177,6 +178,7 @@ export const glossary = {
     labelLabel: "Tag this spot (optional)",
     labelPlaceholder: "Best spot to read at 3 PM",
     confirmRemove: "Remove this bench from your hoard?",
+    limitReached: "Your hoard is full (200 benches). Remove one to claim another.",
   },
 
   rewards: {
